@@ -8,6 +8,9 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	/** MAPBOX_API_KEY, injected at build time by vite.config.ts. */
+	const __MAPBOX_API_KEY__: string;
 }
 
 export {};
