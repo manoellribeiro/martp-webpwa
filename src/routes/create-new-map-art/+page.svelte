@@ -4,10 +4,10 @@
 	import errorImage from '#lib/assets/ic_error_general.svg';
 	import MartpButton from '#lib/components/MartpButton.svelte';
 	import { colorPaletteByNameOrDefault } from '#lib/domain/colorPalettes.ts';
-	import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNewMapArt.viewmodel.svelte.ts';
+import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNewMapArt.viewmodel.svelte.ts';
 	import { startColorfulMapSketch, type ColorLayerHolder } from '#lib/sketches/colorfulMapSketch.ts';
 	import { startDefaultMartpSketch } from '#lib/sketches/defaultMartpSketch.ts';
-	import type { MartpSketch } from '#lib/sketches/martpSketch.ts';
+	import { MAX_CANVAS_SIZE, type MartpSketch } from '#lib/sketches/martpSketch.ts';
 	import { startPointillismMartpSketch } from '#lib/sketches/pointillismMartpSketch.ts';
 	import { strings, type Strings } from '#lib/strings.ts';
 
@@ -22,6 +22,13 @@
 	// container is hidden. Canvas pixels are device pixels, as on Android.
 	let canvasWidth = 0;
 	let canvasHeight = 0;
+	// The art's ratio once measured. Before that the box is the layout's 200px tall.
+	let artAspectRatio = $state<string | null>(null);
+
+	// The app's art is 200dp tall at any width. Here the height grows with the width in a
+	// landscape ratio, so big screens get bigger arts; phones keep the 200px minimum.
+	const ART_ASPECT_RATIO = 16 / 9;
+	const MIN_ART_HEIGHT = 200;
 	let openedFromTheApp = false;
 
 	afterNavigate(({ from }) => {
@@ -29,8 +36,17 @@
 	});
 
 	onMount(() => {
-		canvasWidth = Math.round(mapArtsContainer.clientWidth * devicePixelRatio);
-		canvasHeight = Math.round(mapArtsContainer.clientHeight * devicePixelRatio);
+		canvasWidth = Math.min(
+			Math.round(mapArtsContainer.clientWidth * devicePixelRatio),
+			MAX_CANVAS_SIZE
+		);
+		canvasHeight = Math.min(
+			Math.round(Math.max(MIN_ART_HEIGHT * devicePixelRatio, canvasWidth / ART_ASPECT_RATIO)),
+			MAX_CANVAS_SIZE
+		);
+		// The box keeps the canvas ratio, so it shrinks instead of overflowing if the window
+		// gets narrower after the art is drawn.
+		artAspectRatio = `${canvasWidth} / ${canvasHeight}`;
 		startToGenerateMapArt();
 		return () => viewModel.clear();
 	});
@@ -133,19 +149,10 @@
 		class="map-arts-container"
 		class:invisible={uiState.type === 'idle'}
 		class:gone={uiState.type === 'loading' || uiState.type === 'error'}
+		style:height={artAspectRatio && 'auto'}
+		style:aspect-ratio={artAspectRatio}
 		bind:this={mapArtsContainer}
 	></div>
-
-	{#if uiState.type === 'loading' || uiState.type === 'error'}
-		<div class="state-error-space"></div>
-	{/if}
-
-	{#if uiState.type === 'error'}
-		<img class="error-image" src={errorImage} alt="" />
-		<p class="text-middle-screen-info error-text" role="alert">
-			{strings[uiState.failure.messageToBeDisplayedToUserId]}
-		</p>
-	{/if}
 
 	{#if uiState.type === 'imageDownloaded'}
 		{#if uiState.title}
@@ -175,6 +182,17 @@
 				</li>
 			{/each}
 		</ul>
+	{/if}
+
+	{#if uiState.type === 'loading' || uiState.type === 'error'}
+		<div class="state-error-space"></div>
+	{/if}
+
+	{#if uiState.type === 'error'}
+		<img class="error-image" src={errorImage} alt="" />
+		<p class="text-middle-screen-info error-text" role="alert">
+			{strings[uiState.failure.messageToBeDisplayedToUserId]}
+		</p>
 	{/if}
 
 	{#if uiState.type === 'loading'}

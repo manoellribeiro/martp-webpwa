@@ -7,7 +7,7 @@ import { getCurrentLocation } from '#lib/data/location.ts';
 import { fetchStaticMapImage, getAddress, type Address } from '#lib/data/mapbox.ts';
 import { Failure, UnknownErrorFailure } from '#lib/domain/failures.ts';
 import { sketchArtTypes, type SketchArtType } from '#lib/domain/sketchArtType.ts';
-import { framePadding, frameThickness } from '#lib/sketches/martpSketch.ts';
+import { framesSize } from '#lib/sketches/martpSketch.ts';
 import { locale, type Strings } from '#lib/strings.ts';
 
 // Port of CreateNewMapArtViewModel + CreateNewMapArtUiState.
@@ -24,9 +24,6 @@ export type CreateNewMapArtUiState =
 			longitude: number;
 			colorPalette: string | null;
 	  };
-
-/** Mapbox static images are at most 1280px on each side. */
-const MAPBOX_MAX_IMAGE_SIZE = 1280;
 
 export class CreateNewMapArtViewModel {
 	state = $state<CreateNewMapArtUiState>({ type: 'idle' });
@@ -53,7 +50,6 @@ export class CreateNewMapArtViewModel {
 			const sketchArtType = getArtStylePreference();
 			const location = await getCurrentLocation();
 			if (signal.aborted) return;
-			const framesSize = 2 * frameThickness + 2 * framePadding;
 			this.emitNewState({ type: 'loading', loadingMessageId: 'downloading_map_image' });
 			const [address, staticMapImageUrl] = await Promise.all([
 				getAddress(location.latitude, location.longitude, locale.split('-')[0], signal),
@@ -61,9 +57,9 @@ export class CreateNewMapArtViewModel {
 					styleId: sketchArtTypes[sketchArtType].mapboxMapStyle,
 					latitude: location.latitude,
 					longitude: location.longitude,
-					// The app only caps the height; a desktop window can be wider than Mapbox allows too.
-					mapWidth: Math.min(canvasToDrawArtWidth - framesSize, MAPBOX_MAX_IMAGE_SIZE),
-					mapHeight: Math.min(canvasToDrawArtHeight - framesSize, MAPBOX_MAX_IMAGE_SIZE),
+					// The canvas is at most MAX_CANVAS_SIZE, so the map fits within the Mapbox limit.
+					mapWidth: canvasToDrawArtWidth - framesSize,
+					mapHeight: canvasToDrawArtHeight - framesSize,
 					mapZoom: getMapZoomPreference(),
 					signal
 				})

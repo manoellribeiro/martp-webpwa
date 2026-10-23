@@ -94,6 +94,9 @@
 	.bottom-navigation-bar {
 		position: fixed;
 		inset: auto 0 0 0;
+		/* Centered at the app's width, like the screens above it. */
+		max-width: var(--max-app-width);
+		margin: 0 auto;
 		display: grid;
 		grid-auto-flow: column;
 		grid-auto-columns: 1fr;

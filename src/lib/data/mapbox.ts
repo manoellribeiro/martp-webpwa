@@ -15,6 +15,9 @@ export type MapboxMapStyle = (typeof MapboxMapStyle)[keyof typeof MapboxMapStyle
 
 const accessToken = __MAPBOX_API_KEY__;
 
+/** Mapbox static images are at most 1280px on each side. */
+export const MAPBOX_MAX_IMAGE_SIZE = 1280;
+
 interface StaticMapImageRequest {
 	styleId: MapboxMapStyle;
 	latitude: number;
