@@ -88,5 +88,7 @@ export default {
 	color_palette_value: "Farbpalette: %s",
 	accessing_your_location: "Dein Standort wird abgerufen…",
 	downloading_map_image: "Kartenbild wird heruntergeladen…",
-	error_downloading_location_image: "Beim Herunterladen des Bildes deines Standorts ist ein Fehler aufgetreten, bitte versuche es erneut."
+	error_downloading_location_image: "Beim Herunterladen des Bildes deines Standorts ist ein Fehler aufgetreten, bitte versuche es erneut.",
+	tap_map_to_shuffle_colors: "Du kannst auf die Karte tippen, um die Farben neu zu mischen, bis du die beste Kombination findest.",
+	unknown_location: "Unbekannter Standort"
 } as const;

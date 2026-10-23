@@ -74,8 +74,8 @@ export default {
 	walking_people_description: "Une carte colorée avec une simulation de personnes marchant dans les zones des bâtiments",
 	classic: "Classique",
 	classic_description: "Le premier style artistique créé dans le projet, généré avec les couleurs fixes de notre logo",
-	latitude_value: "Latitudeu00A0: %s",
-	longitude_value: "Longitudeu00A0: %s",
+	latitude_value: "Latitude : %s",
+	longitude_value: "Longitude : %s",
 	layer_buildings: "Bâtiments et zones construites",
 	layer_water: "Eau",
 	layer_road_paths: "Chemins et sentiers",
@@ -85,8 +85,10 @@ export default {
 	layer_everything_else: "Tout le reste",
 	color_legend: "Légende des couleurs",
 	layer_land_other: "Terrain/Autres",
-	color_palette_value: "Palette de couleursu00A0: %s",
+	color_palette_value: "Palette de couleurs : %s",
 	accessing_your_location: "Accès à votre position…",
 	downloading_map_image: "Téléchargement de l’image de la carte…",
-	error_downloading_location_image: "Une erreur s’est produite lors du téléchargement de l’image de votre position, veuillez réessayer."
+	error_downloading_location_image: "Une erreur s’est produite lors du téléchargement de l’image de votre position, veuillez réessayer.",
+	tap_map_to_shuffle_colors: "Vous pouvez toucher la carte pour mélanger les couleurs jusqu'à trouver la meilleure combinaison.",
+	unknown_location: "Position inconnue"
 } as const;

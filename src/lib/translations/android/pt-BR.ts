@@ -14,7 +14,7 @@ export default {
 	we_need_your_location_to_create_art_with_you: "Precisamos acessar sua localização\n para criar arte com você",
 	enter_title: "Insira o título",
 	enter_description: "Insira a descrição",
-	choose_a_title_for_you_map_art: "\"Escolha um título para sua nova arte de mapa \"",
+	choose_a_title_for_you_map_art: "Escolha um título para sua nova arte de mapa ",
 	add_a_description_for_you_map_art: "Adicione uma descrição à sua arte do mapa",
 	save_art: "Salvar arte",
 	location_permission_not_granted_failure_error: "Para prosseguir com essa ação você precisa conceder acesso à sua localização.",
@@ -88,5 +88,7 @@ export default {
 	color_palette_value: "Paleta de cores: %s",
 	accessing_your_location: "Acessando sua localização…",
 	downloading_map_image: "Baixando a imagem do mapa…",
-	error_downloading_location_image: "Um erro aconteceu ao baixar a imagem da sua localização, tente novamente."
+	error_downloading_location_image: "Um erro aconteceu ao baixar a imagem da sua localização, tente novamente.",
+	tap_map_to_shuffle_colors: "Você pode tocar no mapa para embaralhar as cores até encontrar a melhor combinação.",
+	unknown_location: "Localização desconhecida"
 } as const;

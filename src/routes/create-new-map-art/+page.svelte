@@ -106,6 +106,11 @@
 		}
 	});
 
+	/** The app shows every decimal; five (about 1m) are enough. */
+	function formatCoordinate(coordinate: number): string {
+		return coordinate.toFixed(5);
+	}
+
 	async function saveArt() {
 		const currentSketch = sketch;
 		if (!currentSketch) return;
@@ -147,10 +152,10 @@
 			<p class="text-title city-country">{uiState.title}</p>
 		{/if}
 		<p class="text-gray-subtitle art-detail">
-			{strings.latitude_value.replace('%s', uiState.latitude.toString())}
+			{strings.latitude_value.replace('%s', formatCoordinate(uiState.latitude))}
 		</p>
 		<p class="text-gray-subtitle art-detail">
-			{strings.longitude_value.replace('%s', uiState.longitude.toString())}
+			{strings.longitude_value.replace('%s', formatCoordinate(uiState.longitude))}
 		</p>
 		{#if uiState.sketchArtType === 'COLORFUL_MAP'}
 			<p class="text-gray-subtitle art-detail">
@@ -159,6 +164,9 @@
 		{/if}
 
 		<h2 class="text-title map-layers-title">{strings.color_legend}</h2>
+		{#if uiState.sketchArtType === 'COLORFUL_MAP'}
+			<p class="text-gray-subtitle map-layers-subtitle">{strings.tap_map_to_shuffle_colors}</p>
+		{/if}
 		<ul class="map-colors-holders">
 			{#each mapLayers as mapLayer (mapLayer.nameId)}
 				<li class="map-layer-line">
@@ -260,14 +268,18 @@
 	}
 
 	.map-layers-title {
-		margin: 8px 16px;
+		margin: 8px 16px 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
+	.map-layers-subtitle {
+		margin: 0 16px;
+	}
+
 	.map-colors-holders {
-		margin: 0;
+		margin: 4px 0 0;
 		padding: 0;
 		list-style: none;
 	}

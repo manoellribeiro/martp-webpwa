@@ -22,15 +22,39 @@ const locales = {
 
 const xmlEntities = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'" };
 
+// Android's string resource rules: backslash escapes (\n, \t, \uXXXX, \' ...), unescaped
+// double quotes are removed and keep the whitespace between them, and whitespace written
+// literally elsewhere collapses to one space and is trimmed at the ends.
 function unescape(value) {
-	return (
-		value
-			.replace(/&(amp|lt|gt|quot|apos);/g, (entity) => xmlEntities[entity])
-			// Android collapses whitespace written literally in the XML.
-			.replace(/\s+/g, ' ')
-			.trim()
-			.replace(/\\(.)/g, (_, char) => (char === 'n' ? '\n' : char))
-	);
+	const xml = value.replace(/&(amp|lt|gt|quot|apos);/g, (entity) => xmlEntities[entity]);
+	let result = '';
+	let quoted = false;
+	// Collapsed spaces wait here, so trailing ones are dropped and leading ones never start.
+	let pendingSpace = false;
+	const append = (text) => {
+		if (pendingSpace && result) result += ' ';
+		pendingSpace = false;
+		result += text;
+	};
+	for (let i = 0; i < xml.length; i++) {
+		const char = xml[i];
+		if (char === '\\') {
+			const next = xml[++i];
+			if (next === 'u' && /^[0-9a-fA-F]{4}$/.test(xml.slice(i + 1, i + 5))) {
+				append(String.fromCharCode(Number.parseInt(xml.slice(i + 1, i + 5), 16)));
+				i += 4;
+			} else if (next === 'n') append('\n');
+			else if (next === 't') append('\t');
+			else if (next !== undefined) append(next);
+		} else if (char === '"') {
+			quoted = !quoted;
+		} else if (/\s/.test(char) && !quoted) {
+			pendingSpace = true;
+		} else {
+			append(char);
+		}
+	}
+	return result;
 }
 
 function parseStrings(file) {

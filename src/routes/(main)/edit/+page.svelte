@@ -33,13 +33,13 @@
 
 	// The app also lists WATER_FLOW and PARTICLE_SYSTEM, commented out as work in progress.
 	const mapArtStyles: MapArtStyleModel[] = [
-		{ titleId: 'classic', descriptionId: 'classic_description', icon: logo, sketchArtType: 'DEFAULT' },
 		{
 			titleId: 'colorful_map',
 			descriptionId: 'colorful_map_description',
 			icon: colorfulMapIcon,
 			sketchArtType: 'COLORFUL_MAP'
 		},
+		{ titleId: 'classic', descriptionId: 'classic_description', icon: logo, sketchArtType: 'DEFAULT' },
 		{
 			titleId: 'pointillism',
 			descriptionId: 'pointillism_colorful_description',
@@ -303,6 +303,7 @@
 
 	.color-palette {
 		display: flex;
+		flex: 1;
 		flex-direction: column;
 		min-width: 0;
 	}
@@ -314,7 +315,7 @@
 	.colors {
 		display: flex;
 		gap: 8px;
-		overflow-x: auto;
+		overflow: hidden;
 	}
 
 	.color {

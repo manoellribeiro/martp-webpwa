@@ -88,5 +88,7 @@ export default {
 	color_palette_value: "Paleta de colores: %s",
 	accessing_your_location: "Accediendo a tu ubicación…",
 	downloading_map_image: "Descargando la imagen del mapa…",
-	error_downloading_location_image: "Ocurrió un error al descargar la imagen de tu ubicación, inténtalo de nuevo."
+	error_downloading_location_image: "Ocurrió un error al descargar la imagen de tu ubicación, inténtalo de nuevo.",
+	tap_map_to_shuffle_colors: "Puedes tocar el mapa para mezclar los colores hasta encontrar la mejor combinación.",
+	unknown_location: "Ubicación desconocida"
 } as const;

@@ -11,7 +11,8 @@ The Android source is checked out locally at `/Users/manoellribeiro/Documents/ma
 ### Differences from the Android app
 
 - **No gallery and no local art storage.** The web version never stores generated arts on the device, so the gallery screen, its menu item and `MapArtEntity`/Room logic are not ported. Arts only go to the backend.
-- The app's start destination is the gallery; here `/` redirects to `/edit` (the first remaining bottom navigation item).
+- The app's start destination is the art style settings screen; here `/` redirects to `/edit`, the same screen.
+- The create new map art screen shows latitude and longitude with 5 decimals; the app shows every decimal.
 - User info (`id`, `username`, `email`) lives in `localStorage` instead of Room (`src/lib/data/userInfo.ts`).
 - Location permission uses the Permissions + Geolocation APIs (`src/lib/data/location.ts`). A `denied` state is treated like Android's "should show rationale" and opens the location access details screen. Browsers do not prompt again once the user has blocked location, so that screen tells the user to unblock location in the browser's site settings (`location_blocked_in_browser_error`), both on open and after a refused request. A prompt that was only dismissed shows `location_permission_not_granted_failure_error`.
 

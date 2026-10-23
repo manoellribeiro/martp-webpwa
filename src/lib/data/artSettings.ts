@@ -32,7 +32,7 @@ export function setColorPalettePreference(colorPaletteName: string) {
 
 export function getArtStylePreference(): SketchArtType {
 	const stored = read(MAP_ART_STYLE_KEY);
-	return isSketchArtType(stored) ? stored : 'DEFAULT';
+	return isSketchArtType(stored) ? stored : 'COLORFUL_MAP';
 }
 
 export function setMapArtStylePreference(sketchArtType: SketchArtType) {
@@ -41,7 +41,7 @@ export function setMapArtStylePreference(sketchArtType: SketchArtType) {
 
 export function getMapZoomPreference(): number {
 	const stored = Number.parseFloat(read(MAP_ZOOM_KEY) ?? '');
-	return Number.isFinite(stored) ? stored : 15;
+	return Number.isFinite(stored) ? stored : 16.5;
 }
 
 export function setMapZoomPreference(mapZoom: number) {
