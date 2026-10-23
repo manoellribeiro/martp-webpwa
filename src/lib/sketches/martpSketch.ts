@@ -48,8 +48,10 @@ export function createMartpCanvas(
 	p: p5,
 	{ canvasWidth, canvasHeight }: MartpSketchOptions
 ): HTMLCanvasElement {
-	p.pixelDensity(1);
 	const canvas = p.createCanvas(canvasWidth, canvasHeight).elt;
+	// After createCanvas: in p5 2.x it creates the renderer at the display density, which
+	// would discard an earlier pixelDensity(1) and draw (and save) the art up to 3x larger.
+	p.pixelDensity(1);
 	canvas.style.width = '100%';
 	canvas.style.height = '100%';
 	return canvas;

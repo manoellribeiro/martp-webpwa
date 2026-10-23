@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { afterNavigate, goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import errorImage from '#lib/assets/ic_error_general.svg';
 	import MartpButton from '#lib/components/MartpButton.svelte';
 	import { colorPaletteByNameOrDefault } from '#lib/domain/colorPalettes.ts';
@@ -136,7 +137,7 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	/** Activity.finish(): back to the screen that opened this one. */
 	function finish() {
 		if (openedFromTheApp) history.back();
-		else goto('/', { replaceState: true });
+		else goto(resolve('/'), { replaceState: true });
 	}
 </script>
 
@@ -191,7 +192,10 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	{#if uiState.type === 'error'}
 		<img class="error-image" src={errorImage} alt="" />
 		<p class="text-middle-screen-info error-text" role="alert">
-			{strings[uiState.failure.messageToBeDisplayedToUserId]}
+			{strings[uiState.failure.messageToBeDisplayedToUserId].replace(
+				'%s',
+				uiState.failure.messageArgument ?? ''
+			)}
 		</p>
 	{/if}
 

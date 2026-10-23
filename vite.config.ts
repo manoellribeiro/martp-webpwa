@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, loadEnv } from 'vite';
 
@@ -6,8 +6,11 @@ export default defineConfig(({ mode }) => {
 	// Same pattern as the Android app's build.gradle: the MAPBOX_API_KEY environment variable
 	// (set from the repository secret in GitHub Actions) wins, otherwise the untracked .env file.
 	// loadEnv gives environment variables priority over .env files.
-	const mapboxApiKey = loadEnv(mode, '.', '').MAPBOX_API_KEY;
+	const env = loadEnv(mode, '.', '');
+	const mapboxApiKey = env.MAPBOX_API_KEY;
 	if (!mapboxApiKey) console.warn('MAPBOX_API_KEY is not set: map images will fail to load.');
+	// Path the site is served under (see .env.production); empty in development.
+	const basePath = (env.BASE_PATH ?? '') as '' | `/${string}`;
 
 	return {
 		define: {
@@ -22,10 +25,10 @@ export default defineConfig(({ mode }) => {
 						filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 				},
 
-				// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-				// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-				// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-				adapter: adapter()
+				// Static build for GitHub Pages. Every route is prerendered as an empty shell (see
+				// src/routes/+layout.ts); GitHub Pages serves 404.html for any other path.
+				adapter: adapter({ fallback: '404.html' }),
+				paths: { base: basePath }
 			})
 		]
 	};

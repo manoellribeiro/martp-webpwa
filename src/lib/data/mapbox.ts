@@ -91,6 +91,10 @@ export async function getAddress(
 	url.searchParams.set('longitude', longitude.toString());
 	url.searchParams.set('language', language);
 	url.searchParams.set('limit', '1');
+	// Temporary Geocoding API, which has a free monthly allowance. permanent=true switches the
+	// same endpoint to the Permanent Geocoding API, which is paid from the first request.
+	// Temporary results may only be shown, not stored, so don't save the address to the backend.
+	url.searchParams.set('permanent', 'false');
 	url.searchParams.set('access_token', accessToken);
 	try {
 		const response = await fetch(url, { signal });

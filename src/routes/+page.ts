@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
 
-// The app's start destination is the gallery, which the web version doesn't have,
-// so the first remaining bottom navigation item takes its place.
+// The app's start destination is the art style settings screen, which is /edit here.
 export function load() {
-	redirect(307, '/edit');
+	redirect(307, resolve('/(main)/edit'));
 }

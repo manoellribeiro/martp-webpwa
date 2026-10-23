@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import myLocationImage from '#lib/assets/ic_my_location.svg';
 	import MartpButton from '#lib/components/MartpButton.svelte';
 	import { checkLocationPermission, requestLocationPermission } from '#lib/data/location.ts';
@@ -30,7 +31,7 @@
 		asking = false;
 		if (wasGranted) {
 			// replaceState plays the role of finish(): back skips this screen.
-			await goto('/create-new-map-art', { replaceState: true });
+			await goto(resolve('/create-new-map-art'), { replaceState: true });
 		} else if (!(await showErrorIfLocationIsBlocked())) {
 			// The prompt was dismissed without blocking, so pressing again asks again.
 			errorMessage = strings.location_permission_not_granted_failure_error;

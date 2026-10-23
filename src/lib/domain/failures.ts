@@ -5,9 +5,25 @@ import type { Strings } from '#lib/strings.ts';
 export abstract class Failure extends Error {
 	constructor(
 		originalExceptionMessage: string | null | undefined,
-		readonly messageToBeDisplayedToUserId: keyof Strings
+		readonly messageToBeDisplayedToUserId: keyof Strings,
+		/** Web-only: the value for the message's %s, when it has one. */
+		readonly messageArgument?: string
 	) {
 		super(originalExceptionMessage ?? undefined);
+	}
+}
+
+/** Web-only: the browser created too many arts in a short time (see artCreationLimit.ts). */
+export class TooManyArtsInARowFailure extends Failure {
+	constructor() {
+		super(null, 'too_many_arts_in_a_row_error');
+	}
+}
+
+/** Web-only: the browser reached the hourly limit of arts (see artCreationLimit.ts). */
+export class HourlyArtLimitReachedFailure extends Failure {
+	constructor(minutesUntilNextArt: number) {
+		super(null, 'hourly_art_limit_reached_error', minutesUntilNextArt.toString());
 	}
 }
 

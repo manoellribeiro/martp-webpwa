@@ -29,6 +29,7 @@ The Android source is checked out locally at `/Users/manoellribeiro/Documents/ma
 - **Art settings** (zoom, art style, color palette) live in `localStorage` under the app's DataStore keys (`src/lib/data/artSettings.ts`) and are saved on every change, not after the app's 1.5s debounce, so a new art never reads stale settings.
 - **Sketches**: only the three art styles the app offers are ported (`DEFAULT`/Classic, `POINTILLISM`, `COLORFUL_MAP`) in `src/lib/sketches/`; WATER_FLOW and PARTICLE_SYSTEM (sensors) are work in progress in the app and skipped. The canvas is drawn at `pixelDensity(1)` in device pixels and scaled down by CSS, so the 30px frame and the Mapbox image size match Android's pixel values. Each canvas side is capped at `MAX_CANVAS_SIZE` (`src/lib/sketches/martpSketch.ts`: Mapbox's 1280px limit + the 120px of frames), so the map always fills the frame (no `@2x` images, which would change the look). The app's art is 200dp tall at any width; here the height is `max(200px, width / (16/9))`, so phones look like the app and big screens get bigger, landscape arts.
 - **Mapbox**: static images and reverse geocoding (the web stand-in for Android's `Geocoder`) call Mapbox directly. The token is read at build time like in the Android `build.gradle`: the `MAPBOX_API_KEY` environment variable (the repository secret in GitHub Actions) or else the untracked `.env` file (see `.env.example`), injected as the `__MAPBOX_API_KEY__` constant. It ships in the bundle, so it must be a URL-restricted public token.
+- **Art creation limit** (web-only, `src/lib/data/artCreationLimit.ts`): per browser, at most 10 arts a minute and 20 an hour, kept in `localStorage`, so a looping script can't use up the Mapbox free allowance (20/h for a month is 29% of the 50,000 Static Images). Shown through `TooManyArtsInARowFailure` / `HourlyArtLimitReachedFailure` on the error screen. It only stops automation of the app itself; moving the Mapbox calls behind the backend (with per-IP limits) is the real protection, planned for later.
 - **Saving an art** downloads it as a PNG until the API client exists (`TODO` in `CreateNewMapArtViewModel.saveArt`).
 - **Routes**: fragments hosted by `MainActivity` live in the `src/routes/(main)/` group, whose layout renders the bottom navigation bar. Separate activities (`create-new-map-art`, `location-access-details`) are top-level routes without the bar.
 - `#lib` imports of `.ts` files need the extension (`#lib/strings.ts`, `#lib/features/main/main.viewmodel.svelte.ts`); the alias comes from `package.json` `imports`, not `$lib`.
@@ -37,9 +38,12 @@ The Android source is checked out locally at `/Users/manoellribeiro/Documents/ma
 
 ### Frontend (this repo, `web/` or repo root: [FILL IN])
 - **SvelteKit + Svelte 5 (runes)** with **TypeScript**
-- **SPA mode**: `@sveltejs/adapter-static` with `fallback: 'index.html'`, and `export const ssr = false;` in `src/routes/+layout.ts`
+- **SPA mode**: `@sveltejs/adapter-static` with `fallback: '404.html'`, and `ssr = false` + `prerender = true` in `src/routes/+layout.ts`, so every route is written as an HTML shell that GitHub Pages answers with 200.
 - **p5.js in instance mode** (`new p5(sketch, containerEl)`), always call `.remove()` on cleanup
-- **PWA** via `@vite-pwa/sveltekit` (precache app shell and p5, cache-first thumbnails, network-first API calls, "update available" prompt)
+- **PWA** with SvelteKit's own service worker (`src/service-worker/`, its own tsconfig; `@vite-pwa/sveltekit` does not support Kit 3): precaches the whole build (app, p5, fonts, icons, page shells), serves it cache-first, leaves Mapbox to the network, and waits for `UpdateAvailablePrompt.svelte` before switching versions. `static/manifest.webmanifest` uses relative URLs so it works under any base path. Icons are generated from `static/favicon.svg` with `pnpm pwa:assets` (`pwa-assets.config.ts`).
+- **Kit 3 APIs**: env variables are declared in `src/env.ts` (`defineEnvVars`) and imported from `$app/env/public`; `$app/env` replaces `$app/environment`; the worker uses `$app/manifest` and `$app/service-worker`.
+- **Deploy**: GitHub Pages via `.github/workflows/deploy.yml` (check, build with the `MAPBOX_API_KEY` secret, publish `build/`). The site URL and base path live in the committed `.env.production` (`PUBLIC_SITE_URL`, `BASE_PATH`); for a custom domain, set the URL and empty the base path. Internal links and `goto` must use `resolve()` from `$app/paths` with route IDs (`resolve('/(main)/edit')`).
+- **SEO**: static title, description and Open Graph/Twitter tags in `src/app.html` (crawlers don't run JS, so they are the same on every page, in English; `static/og-image.png` is the preview), plus JSON-LD `WebApplication` structured data with the keywords and the Instagram profile (`@martp.app`). The root layout adds a canonical link; `robots.txt` and `sitemap.xml` are prerendered endpoints built from `PUBLIC_SITE_URL`.
 
 
 ### Backend ([FILL IN: separate repo or `server/` folder])
@@ -78,11 +82,14 @@ src/routes/    # thin pages that wire a ViewModel or load data to a view
 ## Commands
 
 ```bash
-npm install
-npm run dev       # dev server
-npm run build     # static build
-npm run check     # svelte-check / type check
-npm run test      # [FILL IN once tests exist]
+pnpm install
+pnpm dev          # dev server
+pnpm build        # static build into build/ (uses .env.production)
+pnpm preview      # serve the build, at /martp-webpwa/ while BASE_PATH is set
+pnpm check        # svelte-check + service worker type check
+pnpm strings:sync # regenerate the Android strings
+pnpm pwa:assets   # regenerate the icons from static/favicon.svg
+pnpm test         # [FILL IN once tests exist]
 ```
 
 Backend: [FILL IN, e.g. `./gradlew bootRun`, `./gradlew test`]
@@ -109,3 +116,8 @@ Backend: [FILL IN, e.g. `./gradlew bootRun`, `./gradlew test`]
 - Built as a **PWA**. A Trusted Web Activity (Bubblewrap) package for the Play Store is a possible later bonus.
 - **p5.js 2.x** (ships its own types; `@types/p5` is for 1.x and must not be added). `setup` can be `async` and `await p.loadImage(...)`.
 - **Translations use plain TypeScript files**, no i18n library (Paraglide and svelte-i18n were considered). Android strings are generated by a script so both projects stay in sync; the language follows the browser, like Android follows the device.
+- **Hosting on GitHub Pages**, first at `https://manoellribeiro.github.io/martp-webpwa`, later on a custom domain (e.g. `martp.app`); the backend will need its own host and CORS.
+- **SvelteKit's built-in service worker instead of `@vite-pwa/sveltekit`**, which only supports Kit 1–2. `@vite-pwa/assets-generator` is kept for the icons only.
+- **Art resolution**: arts are drawn and saved at density 1 (at most 1400px wide), the same on every device. A fixed higher-resolution export (e.g. 2x canvas with `@2x` Mapbox images) is deferred until the digital exhibition exists and shows whether quality is a problem; stretching the canvas to the display density adds no detail.
+- **Geocoding stays on Mapbox's free Temporary Geocoding API** (`permanent=false`, set explicitly in `src/lib/data/mapbox.ts`). The Permanent API is paid from the first request (about $500 per 100k), and temporary results may not be stored, so the address must not be saved to the backend; the plan is for the backend to get and store the art's title itself from a free service (e.g. Nominatim, with OpenStreetMap credit). Never use services that are paid at low volumes.
+- **Mapbox attribution** is given in the GitHub README, which the app links to; the arts are requested without the Mapbox logo.

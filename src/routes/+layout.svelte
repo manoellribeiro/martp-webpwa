@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '#lib/assets/favicon.svg';
+	import { PUBLIC_SITE_URL } from '$app/env/public';
+	import { page } from '$app/state';
+	import UpdateAvailablePrompt from '#lib/components/UpdateAvailablePrompt.svelte';
 	import { MAX_CANVAS_SIZE } from '#lib/sketches/martpSketch.ts';
 
 	let { children } = $props();
@@ -23,12 +25,16 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	{#if PUBLIC_SITE_URL}
+		<link rel="canonical" href={new URL(page.url.pathname, PUBLIC_SITE_URL).href} />
+	{/if}
 </svelte:head>
 
 <div class="app">
 	{@render children()}
 </div>
+
+<UpdateAvailablePrompt />
 
 <style>
 	.app {

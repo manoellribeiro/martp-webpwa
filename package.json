@@ -8,14 +8,16 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && tsc -p src/service-worker",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"strings:sync": "node scripts/sync-android-strings.mjs"
+		"strings:sync": "node scripts/sync-android-strings.mjs",
+		"pwa:assets": "pwa-assets-generator"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^8.0.0",
+		"@sveltejs/adapter-static": "^4.0.0",
 		"@sveltejs/kit": "^3.0.0",
 		"@sveltejs/vite-plugin-svelte": "^7.2.0",
+		"@vite-pwa/assets-generator": "^2.0.0",
 		"svelte": "^5.56.7",
 		"svelte-check": "^4.6.0",
 		"typescript": "^6.0.3",

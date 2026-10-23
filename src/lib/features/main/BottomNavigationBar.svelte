@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { strings } from '#lib/strings.ts';
 
@@ -19,10 +20,17 @@
 
 	// res/menu/bottom_navigation_menu.xml without the gallery item. The app's empty
 	// "none" item, which reserves the slot under the FAB, is the FAB itself here.
-	const leadingItems: MenuItem[] = [{ href: '/edit', title: strings.menu_edit, icon: artConfigIcon }];
+	const leadingItems: MenuItem[] = [
+		{ href: resolve('/(main)/edit'), title: strings.menu_edit, icon: artConfigIcon }
+	];
 	const trailingItems: MenuItem[] = $derived([
-		{ href: '/profile', title: strings.menu_user, icon: userDataIcon, badge: userInfoBadgeVisible },
-		{ href: '/about', title: strings.menu_info, icon: infoIcon }
+		{
+			href: resolve('/(main)/profile'),
+			title: strings.menu_user,
+			icon: userDataIcon,
+			badge: userInfoBadgeVisible
+		},
+		{ href: resolve('/(main)/about'), title: strings.menu_info, icon: infoIcon }
 	]);
 </script>
 

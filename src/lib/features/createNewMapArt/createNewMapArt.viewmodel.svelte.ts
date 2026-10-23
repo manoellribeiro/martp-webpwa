@@ -3,9 +3,15 @@ import {
 	getColorPalettePreference,
 	getMapZoomPreference
 } from '#lib/data/artSettings.ts';
+import { getArtCreationLimit, recordArtCreation } from '#lib/data/artCreationLimit.ts';
 import { getCurrentLocation } from '#lib/data/location.ts';
 import { fetchStaticMapImage, getAddress, type Address } from '#lib/data/mapbox.ts';
-import { Failure, UnknownErrorFailure } from '#lib/domain/failures.ts';
+import {
+	Failure,
+	HourlyArtLimitReachedFailure,
+	TooManyArtsInARowFailure,
+	UnknownErrorFailure
+} from '#lib/domain/failures.ts';
 import { sketchArtTypes, type SketchArtType } from '#lib/domain/sketchArtType.ts';
 import { framesSize } from '#lib/sketches/martpSketch.ts';
 import { locale, type Strings } from '#lib/strings.ts';
@@ -46,11 +52,18 @@ export class CreateNewMapArtViewModel {
 		this.generateMapArtJob = job;
 		const { signal } = job;
 		try {
+			// Web-only: checked before asking for the location, so a limited user doesn't wait.
+			const limit = getArtCreationLimit();
+			if (limit?.type === 'burst') throw new TooManyArtsInARowFailure();
+			if (limit?.type === 'hourly') {
+				throw new HourlyArtLimitReachedFailure(limit.minutesUntilNextArt);
+			}
 			this.emitNewState({ type: 'loading', loadingMessageId: 'accessing_your_location' });
 			const sketchArtType = getArtStylePreference();
 			const location = await getCurrentLocation();
 			if (signal.aborted) return;
 			this.emitNewState({ type: 'loading', loadingMessageId: 'downloading_map_image' });
+			recordArtCreation();
 			const [address, staticMapImageUrl] = await Promise.all([
 				getAddress(location.latitude, location.longitude, locale.split('-')[0], signal),
 				fetchStaticMapImage({
