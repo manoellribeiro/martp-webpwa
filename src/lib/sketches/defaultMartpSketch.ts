@@ -24,7 +24,7 @@ export function startDefaultMartpSketch(container: HTMLElement, options: MartpSk
 			changePixelColors(mapImage);
 			drawArtFrame(p, options);
 			drawMapImage(p, mapImage);
-			p.filter(p.ERODE);
+			p.filter(p.ERODE, undefined, false); // CPU filter, like Processing: the WebGL one breaks on some GPUs
 		};
 	});
 }

@@ -94,7 +94,7 @@ export function startColorfulMapSketch(container: HTMLElement, options: Colorful
 			mapImage = recoloredMapImage();
 			drawArtFrame(p, options);
 			drawMapImage(p, mapImage);
-			p.filter(p.ERODE);
+			p.filter(p.ERODE, undefined, false); // CPU filter, like Processing: the WebGL one breaks on some GPUs
 			// The app's mousePressed. p.mousePressed would fire for clicks anywhere on the page.
 			canvas.addEventListener('pointerdown', () => {
 				mapImage = recoloredMapImage();
