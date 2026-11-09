@@ -4,8 +4,8 @@ import { self } from '$app/service-worker';
 
 // Makes the app work offline and installable. Everything the build produces (scripts,
 // styles, fonts, p5, icons and the prerendered page shells) is cached when a version is
-// installed and served from the cache. Mapbox requests are left to the network: a cached
-// map is of no use for a new location. A new version waits until the user accepts the
+// installed and served from the cache. Mapbox and Martp API requests are left to the
+// network: a cached map is of no use for a new location. A new version waits until the user accepts the
 // "update available" prompt (UpdateAvailablePrompt.svelte), which sends SKIP_WAITING.
 
 const CACHE = `martp-${version}`;

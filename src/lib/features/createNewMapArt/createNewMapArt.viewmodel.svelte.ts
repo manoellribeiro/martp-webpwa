@@ -1,11 +1,16 @@
-import {
-	getArtStylePreference,
-	getColorPalettePreference,
-	getMapZoomPreference
-} from '#lib/data/artSettings.ts';
+import { getArtStylePreference, getMapZoomPreference } from '#lib/data/artSettings.ts';
 import { getArtCreationLimit, recordArtCreation } from '#lib/data/artCreationLimit.ts';
+import { getSelectedColorPalette } from '#lib/data/colorPalettes.ts';
 import { getCurrentLocation } from '#lib/data/location.ts';
-import { fetchStaticMapImage, getAddress, type Address } from '#lib/data/mapbox.ts';
+import { fetchStaticMapImage } from '#lib/data/mapbox.ts';
+import { reverseGeocode, saveMapArt, type RemoteSaveMapArtRequest } from '#lib/data/martpApi.ts';
+import {
+	fetchCurrentUserInfo,
+	setUserEmail,
+	setUserName,
+	type UserInfo
+} from '#lib/data/userInfo.ts';
+import type { ColorPalette } from '#lib/domain/colorPalettes.ts';
 import {
 	Failure,
 	HourlyArtLimitReachedFailure,
@@ -13,8 +18,9 @@ import {
 	UnknownErrorFailure
 } from '#lib/domain/failures.ts';
 import { sketchArtTypes, type SketchArtType } from '#lib/domain/sketchArtType.ts';
+import type { ColorLayerHolder } from '#lib/sketches/colorfulMapSketch.ts';
 import { framesSize } from '#lib/sketches/martpSketch.ts';
-import { locale, type Strings } from '#lib/strings.ts';
+import { locale, strings, type Strings } from '#lib/strings.ts';
 
 // Port of CreateNewMapArtViewModel + CreateNewMapArtUiState.
 export type CreateNewMapArtUiState =
@@ -28,7 +34,8 @@ export type CreateNewMapArtUiState =
 			sketchArtType: SketchArtType;
 			latitude: number;
 			longitude: number;
-			colorPalette: string | null;
+			colorPalette: ColorPalette | null;
+			user: UserInfo;
 	  };
 
 export class CreateNewMapArtViewModel {
@@ -60,12 +67,14 @@ export class CreateNewMapArtViewModel {
 			}
 			this.emitNewState({ type: 'loading', loadingMessageId: 'accessing_your_location' });
 			const sketchArtType = getArtStylePreference();
+			const user = fetchCurrentUserInfo();
 			const location = await getCurrentLocation();
 			if (signal.aborted) return;
 			this.emitNewState({ type: 'loading', loadingMessageId: 'downloading_map_image' });
 			recordArtCreation();
-			const [address, staticMapImageUrl] = await Promise.all([
-				getAddress(location.latitude, location.longitude, locale.split('-')[0], signal),
+			const [title, colorPalette, staticMapImageUrl] = await Promise.all([
+				this.getAddressTitle(location.latitude, location.longitude, signal),
+				sketchArtType === 'COLORFUL_MAP' ? getSelectedColorPalette() : null,
 				fetchStaticMapImage({
 					styleId: sketchArtTypes[sketchArtType].mapboxMapStyle,
 					latitude: location.latitude,
@@ -84,11 +93,12 @@ export class CreateNewMapArtViewModel {
 			this.emitNewState({
 				type: 'imageDownloaded',
 				staticMapImageUrl,
-				title: this.buildTitleWithAddress(address),
+				title,
 				sketchArtType,
-				colorPalette: sketchArtType === 'COLORFUL_MAP' ? getColorPalettePreference() : null,
+				colorPalette,
 				latitude: location.latitude,
-				longitude: location.longitude
+				longitude: location.longitude,
+				user
 			});
 		} catch (e) {
 			if (signal.aborted) return;
@@ -97,29 +107,87 @@ export class CreateNewMapArtViewModel {
 		}
 	}
 
-	private buildTitleWithAddress(address: Address | null): string {
-		return [address?.thoroughfare, address?.locality, address?.countryName]
-			.filter((part): part is string => !!part?.trim())
-			.join(', ');
+	/**
+	 * The app asks Android's Geocoder first and the Martp API only when it finds nothing; the
+	 * web has no geocoder, so the API is the only source. When it fails, or finds no street,
+	 * city or country, the art is still created, titled "Unknown Location".
+	 */
+	private async getAddressTitle(
+		latitude: number,
+		longitude: number,
+		signal: AbortSignal
+	): Promise<string> {
+		try {
+			const address = await reverseGeocode(latitude, longitude, locale.split('-')[0], signal);
+			return (
+				this.buildTitleWithAddress(address.street, address.city, address.country) ||
+				strings.unknown_location
+			);
+		} catch (e) {
+			if (signal.aborted) throw e;
+			console.error('CreateNewMapArtViewModel.getAddressTitle', e);
+			return strings.unknown_location;
+		}
+	}
+
+	private buildTitleWithAddress(
+		street: string | null,
+		city: string | null,
+		country: string | null
+	): string {
+		return [street, city, country].filter((part): part is string => !!part?.trim()).join(', ');
 	}
 
 	/**
-	 * Port of saveArtToLocalDatabase. The web keeps no arts on the device, so for now the
-	 * art is downloaded as a PNG through `saveArtImage`. Resolves to whether it worked,
-	 * which stands in for the ArtCreatedSuccessfully event.
-	 * TODO: send the art to the backend once the API client exists.
+	 * Port of saveArt. The web keeps no arts on the device: the art is only uploaded, in the
+	 * background like the app's uploadMapArt, so the success screen opens right away.
+	 * Resolves to the art's PNG when it worked, which stands in for the
+	 * ArtCreatedSuccessfully(imagePathLocation) event, or null.
 	 */
-	async saveArt(saveArtImage: (fileName: string) => Promise<void>): Promise<boolean> {
+	async saveArt(
+		mapLayersColors: ColorLayerHolder | null,
+		updateUserInfo: UserInfo,
+		getArtImage: () => Promise<Blob>
+	): Promise<Blob | null> {
+		if (this.state.type !== 'imageDownloaded') return null;
+		const { title, latitude, longitude, sketchArtType, colorPalette } = this.state;
 		this.isActionButtonLoading = true;
 		try {
-			await saveArtImage(`martp-${crypto.randomUUID()}`);
-			return true;
+			setUserName(updateUserInfo.username ?? '', updateUserInfo.id);
+			setUserEmail(updateUserInfo.email ?? '', updateUserInfo.id);
+			const art: RemoteSaveMapArtRequest = {
+				id: crypto.randomUUID(),
+				title,
+				latitude,
+				longitude,
+				dateInMillis: Date.now(),
+				sketchArtType,
+				colorPalette: colorPalette?.name ?? null,
+				colorsLayers: {
+					roadsColor: mapLayersColors?.roadsColor ?? null,
+					buildingStrokeColor: mapLayersColors?.buildingStrokeColor ?? null,
+					buildingColor: mapLayersColors?.buildingColor ?? null,
+					roadsPathColor: mapLayersColors?.roadsPathColor ?? null,
+					waterColor: mapLayersColors?.waterColor ?? null,
+					landOthersColor: mapLayersColors?.landOthersColor ?? null
+				},
+				email: updateUserInfo.email,
+				username: updateUserInfo.username
+			};
+			const image = await getArtImage();
+			this.uploadMapArt(art, image);
+			return image;
 		} catch (e) {
 			this.emitNewState({ type: 'error', failure: new UnknownErrorFailure(String(e)) });
-			return false;
+			return null;
 		} finally {
 			this.isActionButtonLoading = false;
 		}
+	}
+
+	/** MartpRepository.uploadMapArt: fire and forget, failures are only logged. */
+	private uploadMapArt(art: RemoteSaveMapArtRequest, image: Blob) {
+		saveMapArt(art, image).catch((e) => console.error('CreateNewMapArtViewModel.uploadMapArt', e));
 	}
 
 	/** Counterpart of onCleared(). */

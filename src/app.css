@@ -64,6 +64,12 @@
 	--error-light: #fa8c8c;
 	--error-lightest: #ffe1d7;
 
+	--light-cream-transparent: #00fff8e8;
+	--blue-alpha-8: #14120d31;
+	--blue-alpha-12: #1f120d31;
+	--blue-alpha-80: #cc120d31;
+	--white-alpha-80: #ccffffff;
+
 	/* ?attr/actionBarSize */
 	--bottom-navigation-bar-height: 56px;
 }

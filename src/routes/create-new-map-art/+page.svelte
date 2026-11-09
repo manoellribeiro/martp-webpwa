@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { afterNavigate, goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import errorImage from '#lib/assets/ic_error_general.svg';
 	import MartpButton from '#lib/components/MartpButton.svelte';
-	import { colorPaletteByNameOrDefault } from '#lib/domain/colorPalettes.ts';
-import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNewMapArt.viewmodel.svelte.ts';
+	import type { UserInfo } from '#lib/data/userInfo.ts';
+	import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNewMapArt.viewmodel.svelte.ts';
 	import { startColorfulMapSketch, type ColorLayerHolder } from '#lib/sketches/colorfulMapSketch.ts';
 	import { startDefaultMartpSketch } from '#lib/sketches/defaultMartpSketch.ts';
 	import { MAX_CANVAS_SIZE, type MartpSketch } from '#lib/sketches/martpSketch.ts';
 	import { startPointillismMartpSketch } from '#lib/sketches/pointillismMartpSketch.ts';
+	import { setSavedArt } from '#lib/features/success/savedArt.ts';
+	import SetUserInfoBottomSheet from '#lib/features/userInfoBottomSheet/SetUserInfoBottomSheet.svelte';
 	import { strings, type Strings } from '#lib/strings.ts';
 
 	// Port of CreateNewMapArtActivity + activity_create_new_map_art.xml.
@@ -19,6 +21,7 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	let mapArtsContainer: HTMLElement;
 	let sketch: MartpSketch | null = null;
 	let colorLayerHolder = $state<ColorLayerHolder | null>(null);
+	let isSetUserInfoBottomSheetOpen = $state(false);
 	// Measured once, like the app does in doOnLayout: "try again" reuses it while the
 	// container is hidden. Canvas pixels are device pixels, as on Android.
 	let canvasWidth = 0;
@@ -30,11 +33,6 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	// landscape ratio, so big screens get bigger arts; phones keep the 200px minimum.
 	const ART_ASPECT_RATIO = 16 / 9;
 	const MIN_ART_HEIGHT = 200;
-	let openedFromTheApp = false;
-
-	afterNavigate(({ from }) => {
-		openedFromTheApp ||= from != null;
-	});
 
 	onMount(() => {
 		canvasWidth = Math.min(
@@ -67,9 +65,10 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 				case 'POINTILLISM':
 					return startPointillismMartpSketch(mapArtsContainer, options);
 				case 'COLORFUL_MAP':
+					if (!uiState.colorPalette) throw new Error('COLORFUL_MAP art without a color palette');
 					return startColorfulMapSketch(mapArtsContainer, {
 						...options,
-						colorPalette: colorPaletteByNameOrDefault(uiState.colorPalette),
+						colorPalette: uiState.colorPalette,
 						onColorsShuffled: (holder) => (colorLayerHolder = holder)
 					});
 			}
@@ -117,7 +116,6 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 			case 'loading':
 				return strings.we_are_generating_your_art;
 			case 'imageDownloaded':
-				return strings.this_is_your_new_art;
 			case 'error':
 				return null;
 		}
@@ -128,16 +126,17 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 		return coordinate.toFixed(5);
 	}
 
-	async function saveArt() {
+	async function saveArt(user: UserInfo) {
 		const currentSketch = sketch;
 		if (!currentSketch) return;
-		if (await viewModel.saveArt((fileName) => currentSketch.save(fileName))) finish();
+		const savedArt = await viewModel.saveArt(colorLayerHolder, user, () => currentSketch.toPng());
+		if (savedArt) openSuccessScreen(savedArt);
 	}
 
-	/** Activity.finish(): back to the screen that opened this one. */
-	function finish() {
-		if (openedFromTheApp) history.back();
-		else goto(resolve('/'), { replaceState: true });
+	/** startActivity(SuccessActivity) + finish(): the success screen takes this one's place. */
+	function openSuccessScreen(savedArt: Blob) {
+		setSavedArt(savedArt);
+		goto(resolve('/success'), { replaceState: true });
 	}
 </script>
 
@@ -167,7 +166,7 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 		</p>
 		{#if uiState.sketchArtType === 'COLORFUL_MAP'}
 			<p class="text-gray-subtitle art-detail">
-				{strings.color_palette_value.replace('%s', uiState.colorPalette ?? '')}
+				{strings.color_palette_value.replace('%s', uiState.colorPalette?.name ?? '')}
 			</p>
 		{/if}
 
@@ -214,14 +213,53 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 			<MartpButton title={strings.try_again} cornerRadius={50} onclick={startToGenerateMapArt} />
 		</div>
 	{:else if uiState.type === 'imageDownloaded'}
+		{@const user = uiState.user}
+		{@const hasUsername = !!user.username}
+		<!-- background_set_username_card.xml -->
+		<div class="username-info-container">
+			<div class="username-info">
+				<p class="text-gray-subtitle">{strings.author_in_digital_exhibition}</p>
+				<p class="text-title username">{hasUsername ? user.username : strings.anonymous}</p>
+			</div>
+			<div class="add-username">
+				<MartpButton
+					title={strings.menu_edit}
+					variant="pill"
+					width="wrap_content"
+					cornerRadius={50}
+					buttonBackgroundColor={hasUsername ? 'var(--white)' : undefined}
+					strokeColor={hasUsername ? 'var(--light-l3)' : undefined}
+					onclick={() => (isSetUserInfoBottomSheetOpen = true)}
+				>
+					{#snippet startIcon()}
+						<!-- ic_person_edit.xml -->
+						<svg viewBox="0 0 960 960" fill="currentColor" aria-hidden="true">
+							<path
+								d="M160,800L160,688Q160,654 177.5,625.5Q195,597 224,582Q286,551 350,535.5Q414,520 480,520Q517,520 553,524.5Q589,529 625,539L558,607Q538,604 519,602Q500,600 480,600Q424,600 369,613.5Q314,627 260,654Q251,659 245.5,668Q240,677 240,688L240,720L480,720L480,800L160,800ZM560,840L560,717L781,497Q790,488 801,484Q812,480 823,480Q835,480 846,484.5Q857,489 866,498L903,535Q911,544 915.5,555Q920,566 920,577Q920,588 916,599.5Q912,611 903,620L683,840L560,840ZM860,577L860,577L823,540L823,540L860,577ZM620,780L658,780L779,658L761,639L742,621L620,742L620,780ZM761,639L742,621L742,621L779,658L779,658L761,639ZM367,433Q320,386 320,320Q320,254 367,207Q414,160 480,160Q546,160 593,207Q640,254 640,320Q640,386 593,433Q546,480 480,480Q414,480 367,433ZM536.5,376.5Q560,353 560,320Q560,287 536.5,263.5Q513,240 480,240Q447,240 423.5,263.5Q400,287 400,320Q400,353 423.5,376.5Q447,400 480,400Q513,400 536.5,376.5Z"
+							/>
+						</svg>
+					{/snippet}
+				</MartpButton>
+			</div>
+		</div>
+
 		<div class="action">
 			<MartpButton
 				title={strings.save_art}
 				cornerRadius={50}
 				loading={viewModel.isActionButtonLoading}
-				onclick={saveArt}
+				onclick={() => saveArt(user)}
 			/>
 		</div>
+
+		{#if isSetUserInfoBottomSheetOpen}
+			<SetUserInfoBottomSheet
+				userInfo={user}
+				onSaveAnonymously={() => saveArt(user)}
+				onSaveWithMyName={(updatedUser) => saveArt(updatedUser)}
+				onDismiss={() => (isSetUserInfoBottomSheetOpen = false)}
+			/>
+		{/if}
 	{/if}
 </div>
 
@@ -236,7 +274,7 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	}
 
 	.title {
-		margin: 16px auto;
+		margin: 8px auto 16px;
 		padding: 0 16px;
 		text-align: center;
 	}
@@ -244,7 +282,7 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 	.map-arts-container {
 		flex-shrink: 0;
 		height: 200px;
-		margin: 0 16px;
+		margin: 8px 16px 0;
 		overflow: hidden;
 		background: var(--dark-d5);
 	}
@@ -353,6 +391,33 @@ import { CreateNewMapArtViewModel } from '#lib/features/createNewMapArt/createNe
 
 	.space {
 		flex: 1;
+	}
+
+	.username-info-container {
+		display: flex;
+		align-items: center;
+		margin: 0 16px;
+		border: 1px solid var(--light-l3);
+		border-radius: 8px;
+		background: var(--white);
+	}
+
+	.username-info {
+		flex: 1;
+		min-width: 0;
+		margin: 8px 0 8px 16px;
+	}
+
+	.username {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 16px;
+	}
+
+	.add-username {
+		flex-shrink: 0;
+		margin: 8px 16px;
 	}
 
 	.action {

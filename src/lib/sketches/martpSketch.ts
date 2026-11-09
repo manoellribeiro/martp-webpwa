@@ -23,8 +23,8 @@ export interface MartpSketchOptions {
 
 /** What the screen needs from a running sketch. */
 export interface MartpSketch {
-	/** Downloads the art as a PNG, the web counterpart of PApplet.save(path). */
-	save(fileName: string): Promise<void>;
+	/** The art as a PNG, the web counterpart of `sketch.get().save(path)`. */
+	toPng(): Promise<Blob>;
 	/** Stops the sketch and removes its canvas. */
 	remove(): void;
 }
@@ -35,9 +35,9 @@ export type Rgb = [red: number, green: number, blue: number];
 export function startMartpSketch(container: HTMLElement, sketch: (p: p5) => void): MartpSketch {
 	const instance = new p5(sketch, container);
 	return {
-		save: (fileName) => {
+		toPng: () => {
 			const canvas = container.querySelector('canvas');
-			return canvas ? downloadCanvas(canvas, fileName) : Promise.reject(new Error('No art to save'));
+			return canvas ? canvasToPng(canvas) : Promise.reject(new Error('No art to save'));
 		},
 		remove: () => instance.remove()
 	};
@@ -96,21 +96,11 @@ export function hexToRgb(hex: string): Rgb {
 	return [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
 }
 
-function downloadCanvas(canvas: HTMLCanvasElement, fileName: string): Promise<void> {
+function canvasToPng(canvas: HTMLCanvasElement): Promise<Blob> {
 	return new Promise((resolve, reject) => {
 		canvas.toBlob((blob) => {
-			if (!blob) {
-				reject(new Error('Could not encode the art as PNG'));
-				return;
-			}
-			const url = URL.createObjectURL(blob);
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = `${fileName}.png`;
-			link.click();
-			// Give the browser time to start the download before freeing the image.
-			setTimeout(() => URL.revokeObjectURL(url), 1000);
-			resolve();
+			if (blob) resolve(blob);
+			else reject(new Error('Could not encode the art as PNG'));
 		}, 'image/png');
 	});
 }

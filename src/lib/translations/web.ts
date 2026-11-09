@@ -11,7 +11,9 @@ const en = {
 	too_many_arts_in_a_row_error:
 		"You are creating arts very fast. To keep Martp free for everyone, please wait a minute before creating the next one.",
 	hourly_art_limit_reached_error:
-		"You have created a lot of arts in the last hour. To keep Martp free for everyone, you can create a new one in %s min."
+		"You have created a lot of arts in the last hour. To keep Martp free for everyone, you can create a new one in %s min.",
+	/** Header chip of the success screen; the app's success_saved_to_gallery, but the web has no gallery. */
+	success_art_sent: 'Art sent'
 };
 
 type WebStrings = typeof en;
@@ -26,7 +28,8 @@ const de: WebStrings = {
 	too_many_arts_in_a_row_error:
 		"Du erstellst sehr schnell Kunstwerke. Damit Martp für alle kostenlos bleibt, warte bitte eine Minute, bevor du das nächste erstellst.",
 	hourly_art_limit_reached_error:
-		"Du hast in der letzten Stunde sehr viele Kunstwerke erstellt. Damit Martp für alle kostenlos bleibt, kannst du in %s Min. ein neues erstellen."
+		"Du hast in der letzten Stunde sehr viele Kunstwerke erstellt. Damit Martp für alle kostenlos bleibt, kannst du in %s Min. ein neues erstellen.",
+	success_art_sent: 'Kunstwerk gesendet'
 };
 
 const es: WebStrings = {
@@ -39,7 +42,8 @@ const es: WebStrings = {
 	too_many_arts_in_a_row_error:
 		"Estás creando artes muy rápido. Para que Martp siga siendo gratis para todos, espera un minuto antes de crear la siguiente.",
 	hourly_art_limit_reached_error:
-		"Has creado muchas artes en la última hora. Para que Martp siga siendo gratis para todos, podrás crear una nueva en %s min."
+		"Has creado muchas artes en la última hora. Para que Martp siga siendo gratis para todos, podrás crear una nueva en %s min.",
+	success_art_sent: 'Arte enviada'
 };
 
 const fr: WebStrings = {
@@ -52,7 +56,8 @@ const fr: WebStrings = {
 	too_many_arts_in_a_row_error:
 		"Vous créez des œuvres très rapidement. Pour que Martp reste gratuit pour tout le monde, veuillez attendre une minute avant de créer la suivante.",
 	hourly_art_limit_reached_error:
-		"Vous avez créé beaucoup d'œuvres au cours de la dernière heure. Pour que Martp reste gratuit pour tout le monde, vous pourrez en créer une nouvelle dans %s min."
+		"Vous avez créé beaucoup d'œuvres au cours de la dernière heure. Pour que Martp reste gratuit pour tout le monde, vous pourrez en créer une nouvelle dans %s min.",
+	success_art_sent: 'Œuvre envoyée'
 };
 
 const ptBR: WebStrings = {
@@ -65,7 +70,8 @@ const ptBR: WebStrings = {
 	too_many_arts_in_a_row_error:
 		"Você está criando artes muito rápido. Para manter o Martp gratuito para todos, espere um minuto antes de criar a próxima.",
 	hourly_art_limit_reached_error:
-		"Você criou muitas artes na última hora. Para manter o Martp gratuito para todos, você poderá criar uma nova em %s min."
+		"Você criou muitas artes na última hora. Para manter o Martp gratuito para todos, você poderá criar uma nova em %s min.",
+	success_art_sent: 'Arte enviada'
 };
 
 export default { en, de, es, fr, 'pt-BR': ptBR };

@@ -45,6 +45,12 @@ export class MapboxApiErrorFailure extends Failure {
 	}
 }
 
+export class MartpApiErrorFailure extends Failure {
+	constructor(originalExceptionMessage?: string | null) {
+		super(originalExceptionMessage, 'martp_api_failure_message');
+	}
+}
+
 export class NoInternetConnectionFailure extends Failure {
 	constructor(originalExceptionMessage?: string | null) {
 		super(originalExceptionMessage, 'no_internet_connection_failure_message');

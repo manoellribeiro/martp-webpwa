@@ -1,9 +1,8 @@
 import { MapboxApiErrorFailure, NoInternetConnectionFailure } from '#lib/domain/failures.ts';
 
-// Web counterpart of MapboxApiService + MartpRepository.fetchStaticMapImage and of
-// GetAddressService (the app uses Android's Geocoder; here Mapbox reverse geocoding).
+// Web counterpart of MapboxApiService + MartpRepository.fetchStaticMapImage.
+// Reverse geocoding goes through the Martp API instead (src/lib/data/martpApi.ts).
 // https://docs.mapbox.com/api/maps/static-images/
-// https://docs.mapbox.com/api/search/geocoding/#reverse-geocoding
 
 export const MapboxMapStyle = {
 	DarkV11: 'cmnxj3x4g000501sm6i905bl6',
@@ -53,66 +52,5 @@ export async function fetchStaticMapImage({
 	} catch (e) {
 		if (signal?.aborted) throw e;
 		throw new MapboxApiErrorFailure(e instanceof Error ? e.message : null);
-	}
-}
-
-/** The parts of android.location.Address the app uses. */
-export interface Address {
-	thoroughfare: string | null;
-	locality: string | null;
-	countryName: string | null;
-}
-
-interface GeocodingContextItem {
-	name?: string;
-	street_name?: string;
-}
-
-interface GeocodingResponse {
-	features: {
-		properties: {
-			feature_type: string;
-			name: string;
-			context: Partial<Record<'address' | 'street' | 'place' | 'country', GeocodingContextItem>>;
-		};
-	}[];
-}
-
-/** Like GetAddressService: null when the address cannot be found, a failure only when offline. */
-export async function getAddress(
-	latitude: number,
-	longitude: number,
-	language: string,
-	signal?: AbortSignal
-): Promise<Address | null> {
-	if (!navigator.onLine) throw new NoInternetConnectionFailure();
-	const url = new URL('https://api.mapbox.com/search/geocode/v6/reverse');
-	url.searchParams.set('latitude', latitude.toString());
-	url.searchParams.set('longitude', longitude.toString());
-	url.searchParams.set('language', language);
-	url.searchParams.set('limit', '1');
-	// Temporary Geocoding API, which has a free monthly allowance. permanent=true switches the
-	// same endpoint to the Permanent Geocoding API, which is paid from the first request.
-	// Temporary results may only be shown, not stored, so don't save the address to the backend.
-	url.searchParams.set('permanent', 'false');
-	url.searchParams.set('access_token', accessToken);
-	try {
-		const response = await fetch(url, { signal });
-		if (!response.ok) return null;
-		const { features } = (await response.json()) as GeocodingResponse;
-		const properties = features[0]?.properties;
-		if (!properties) return null;
-		const { context } = properties;
-		return {
-			thoroughfare:
-				context.street?.name ??
-				context.address?.street_name ??
-				(properties.feature_type === 'street' ? properties.name : null),
-			locality: context.place?.name ?? null,
-			countryName: context.country?.name ?? null
-		};
-	} catch (e) {
-		if (signal?.aborted) throw e;
-		return null;
 	}
 }

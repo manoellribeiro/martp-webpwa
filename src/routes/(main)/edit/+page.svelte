@@ -1,6 +1,4 @@
 <script lang="ts">
-	import colorfulMapIcon from '#lib/assets/ic_colorful_map.svg';
-	import pointillismIcon from '#lib/assets/ic_pointllism.svg';
 	import logo from '#lib/assets/martp_logo.svg';
 	import {
 		getArtStylePreference,
@@ -10,46 +8,34 @@
 		setMapArtStylePreference,
 		setMapZoomPreference
 	} from '#lib/data/artSettings.ts';
-	import { colorPaletteByNameOrDefault, colorPalettes } from '#lib/domain/colorPalettes.ts';
+	import { getColorsPalettes } from '#lib/data/colorPalettes.ts';
+	import type { ColorPalette } from '#lib/domain/colorPalettes.ts';
 	import {
 		sliderPositionToZoom,
 		zoomToSliderPosition,
 		type SketchArtType
 	} from '#lib/domain/sketchArtType.ts';
+	import { artStyleModels } from '#lib/features/artStyleSettings/mapArtStyleModels.ts';
 	import SelectableCard from '#lib/features/artStyleSettings/SelectableCard.svelte';
-	import { strings, type Strings } from '#lib/strings.ts';
+	import { strings } from '#lib/strings.ts';
 
-	// Port of ArtStyleSettingsFragment and the art style parts of MainViewModel. The app's
-	// loading state is not needed: the settings come from localStorage synchronously.
+	// Port of ArtStyleSettingsFragment and the art style parts of MainViewModel. The settings
+	// come from localStorage synchronously; only the color palettes, which come from the
+	// Martp API (or its localStorage cache), are loaded, and their section waits for them.
 	// The app saves each change after 1.5s without changes; localStorage writes are cheap,
 	// so they are saved right away and a new art never starts from stale settings.
 
-	interface MapArtStyleModel {
-		titleId: keyof Strings;
-		descriptionId: keyof Strings;
-		icon: string;
-		sketchArtType: SketchArtType;
-	}
-
-	// The app also lists WATER_FLOW and PARTICLE_SYSTEM, commented out as work in progress.
-	const mapArtStyles: MapArtStyleModel[] = [
-		{
-			titleId: 'colorful_map',
-			descriptionId: 'colorful_map_description',
-			icon: colorfulMapIcon,
-			sketchArtType: 'COLORFUL_MAP'
-		},
-		{ titleId: 'classic', descriptionId: 'classic_description', icon: logo, sketchArtType: 'DEFAULT' },
-		{
-			titleId: 'pointillism',
-			descriptionId: 'pointillism_colorful_description',
-			icon: pointillismIcon,
-			sketchArtType: 'POINTILLISM'
-		}
-	];
-
 	let selectedArtStyle = $state(getArtStylePreference());
-	let selectedColorPalette = $state(colorPaletteByNameOrDefault(getColorPalettePreference()).name);
+	let colorPalettes = $state<ColorPalette[] | null>(null);
+	let selectedColorPalette = $state<string | null>(null);
+
+	getColorsPalettes().then((loadedColorPalettes) => {
+		const savedColorPaletteName = getColorPalettePreference();
+		selectedColorPalette =
+			loadedColorPalettes.find((colorPalette) => colorPalette.name === savedColorPaletteName)
+				?.name ?? loadedColorPalettes[0].name;
+		colorPalettes = loadedColorPalettes;
+	});
 	// The slider holds its position (0..1) instead of the zoom itself, so switching to an
 	// art style with another zoom range keeps the thumb where it was
 	let sliderPosition = $state(zoomToSliderPosition(getArtStylePreference(), getMapZoomPreference()));
@@ -101,7 +87,7 @@
 			{strings.choose_visual_style}
 		</p>
 		<div class="cards" role="radiogroup" aria-label={strings.art_style}>
-			{#each mapArtStyles as mapArtStyle (mapArtStyle.sketchArtType)}
+			{#each artStyleModels as mapArtStyle (mapArtStyle.sketchArtType)}
 				{@const isSelected = mapArtStyle.sketchArtType === selectedArtStyle}
 				<SelectableCard
 					name="art-style"
@@ -124,7 +110,7 @@
 		</div>
 	</section>
 
-	{#if selectedArtStyle === 'COLORFUL_MAP'}
+	{#if selectedArtStyle === 'COLORFUL_MAP' && colorPalettes}
 		<section class="section">
 			<h2 class="text-screen-title section-title">{strings.color_palette}</h2>
 			<p class="text-middle-screen-info section-description list-description">

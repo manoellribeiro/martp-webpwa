@@ -41,3 +41,11 @@ export const locale = detectLocale();
 export const strings: Strings = { ...translations[DEFAULT_LOCALE], ...translations[locale] };
 
 document.documentElement.lang = locale;
+
+/** Fills Android's %s and %1$s, %2$s... placeholders, in order. */
+export function formatString(text: string, ...args: string[]): string {
+	let next = 0;
+	return text.replace(/%(?:(\d+)\$)?s/g, (_, position?: string) =>
+		args[position ? Number(position) - 1 : next++] ?? ''
+	);
+}
