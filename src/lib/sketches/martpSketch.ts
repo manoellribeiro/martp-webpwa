@@ -1,18 +1,16 @@
 import p5 from 'p5';
-import { MAPBOX_MAX_IMAGE_SIZE } from '#lib/data/mapbox.ts';
+import { framePadding, frameThickness } from '#lib/sketches/canvasSize.ts';
 
 // Port of core/sketches/MartpSketch.kt. Sizes are in canvas pixels, which are device
 // pixels like on Android: the canvas is drawn at pixelDensity 1 and scaled down by CSS.
+// The sizes live in canvasSize.ts, which does not load p5.
 
-export const frameThickness = 30;
-export const framePadding = 30;
-/** Frame and padding on both sides, around the map image. */
-export const framesSize = 2 * frameThickness + 2 * framePadding;
-/**
- * Largest canvas side whose map still fills the frame. Phones never reach it; on a big
- * screen the art keeps this size instead of leaving a gap next to the map.
- */
-export const MAX_CANVAS_SIZE = MAPBOX_MAX_IMAGE_SIZE + framesSize;
+export {
+	framePadding,
+	framesSize,
+	frameThickness,
+	MAX_CANVAS_SIZE
+} from '#lib/sketches/canvasSize.ts';
 
 export interface MartpSketchOptions {
 	canvasWidth: number;

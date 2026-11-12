@@ -16,7 +16,7 @@
 	onMount(() => mainViewModel.hideUserInfoBadge());
 
 	// The app opens this URL, the web version itself, until the digital exhibition exists.
-	const DIGITAL_EXHIBITION_URL = 'https://manoellribeiro.github.io/martp-webpwa/edit';
+	const DIGITAL_EXHIBITION_URL = 'https://martp.app/edit';
 
 	/** Saves once the user has stopped typing for 1 second, as the app does. */
 	function saveWhenUserStopsTyping(actionToExecute: () => void) {

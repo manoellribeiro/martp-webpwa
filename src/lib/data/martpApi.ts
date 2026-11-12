@@ -43,6 +43,39 @@ export interface RemoteSaveMapArtRequest {
 	username: string | null;
 }
 
+/** An approved art of the digital exhibition. Web-only: the app has no exhibition yet. */
+export interface RemoteExhibitionMapArt {
+	id: string;
+	title: string;
+	latitude: number;
+	longitude: number;
+	dateInMillis: number;
+	/** A Continent value; OCEAN when not on or near any country, UNKNOWN when the lookup failed. */
+	continent: string;
+	/** ISO 3166-1 alpha-2, null in the ocean. */
+	countryCode: string | null;
+	imageUrl: string;
+	sketchArtType: string | null;
+	colorPalette: string | null;
+	colorsLayers: RemoteMapLayersColors;
+	/** null when the art is anonymous, or its user is deleted or has no username. */
+	user: { username: string } | null;
+}
+
+interface RemoteExhibitionMapArtsResponse {
+	mapArts: RemoteExhibitionMapArt[];
+}
+
+export interface RemoteExhibitionContinent {
+	/** A Continent value, OCEAN and UNKNOWN included. */
+	continent: string;
+	total: number;
+}
+
+interface RemoteExhibitionContinentsResponse {
+	continents: RemoteExhibitionContinent[];
+}
+
 async function request(path: string, init: RequestInit = {}, signal?: AbortSignal) {
 	const headers = new Headers(init.headers);
 	headers.set(APP_CHECK_HEADER, await getAppCheckToken());
@@ -75,4 +108,27 @@ export async function saveMapArt(art: RemoteSaveMapArtRequest, image: Blob): Pro
 	body.append('art', new Blob([JSON.stringify(art)], { type: 'application/json' }));
 	body.append('image', image, `${art.id}.png`);
 	await request('map-arts', { method: 'POST', body });
+}
+
+/** Approved arts, newest first. A null `continent` means every continent. */
+export async function getExhibitionMapArts(
+	continent: string | null,
+	signal?: AbortSignal
+): Promise<RemoteExhibitionMapArtsResponse> {
+	const query = continent ? `?${new URLSearchParams({ continent })}` : '';
+	return (await request(`map-arts/exhibition${query}`, {}, signal)).json();
+}
+
+/** Continents with approved arts and how many each has, the biggest first. */
+export async function getExhibitionContinents(
+	signal?: AbortSignal
+): Promise<RemoteExhibitionContinentsResponse> {
+	return (await request('map-arts/exhibition/continents', {}, signal)).json();
+}
+
+/** A random selection of approved arts for the globe, different on each call. */
+export async function getGlobeMapArts(
+	signal?: AbortSignal
+): Promise<RemoteExhibitionMapArtsResponse> {
+	return (await request('map-arts/exhibition/globe', {}, signal)).json();
 }

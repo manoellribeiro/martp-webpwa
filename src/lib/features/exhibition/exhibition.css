@@ -1,0 +1,41 @@
+/*
+ * Digital exhibition only (web-only, see digital-exhibition.pen). Headlines use Unbounded and
+ * labels IBM Plex Mono, Latin subsets from Google Fonts; body text keeps the app's Nunito.
+ * Colors are the app's variables from src/app.css.
+ */
+
+@font-face {
+	font-family: 'Unbounded';
+	font-weight: 500;
+	font-display: swap;
+	src: url('../../assets/fonts/unbounded_medium.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-weight: 400;
+	font-display: swap;
+	src: url('../../assets/fonts/ibm_plex_mono_regular.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-weight: 500;
+	font-display: swap;
+	src: url('../../assets/fonts/ibm_plex_mono_medium.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'IBM Plex Mono';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../../assets/fonts/ibm_plex_mono_italic.woff2') format('woff2');
+}
+
+:root {
+	--exhibition-headline-font: 'Unbounded', 'Nunito', sans-serif;
+	--exhibition-label-font: 'IBM Plex Mono', ui-monospace, monospace;
+	/* Borders and the floor line of the exhibition walls. */
+	--exhibition-surface-border: #eae3d3;
+}

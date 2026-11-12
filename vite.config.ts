@@ -28,7 +28,11 @@ export default defineConfig(({ mode }) => {
 				// Static build for GitHub Pages. Every route is prerendered as an empty shell (see
 				// src/routes/+layout.ts); GitHub Pages serves 404.html for any other path.
 				adapter: adapter({ fallback: '404.html' }),
-				paths: { base: basePath }
+				paths: { base: basePath },
+
+				// Registered by the root layout on the app's pages only, so a digital exhibition
+				// visitor never downloads the whole app (see src/lib/data/serviceWorker.ts).
+				serviceWorker: { register: false }
 			})
 		]
 	};

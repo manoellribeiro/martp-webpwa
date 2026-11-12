@@ -3,9 +3,18 @@
 	import { PUBLIC_SITE_URL } from '$app/env/public';
 	import { page } from '$app/state';
 	import UpdateAvailablePrompt from '#lib/components/UpdateAvailablePrompt.svelte';
-	import { MAX_CANVAS_SIZE } from '#lib/sketches/martpSketch.ts';
+	import { registerServiceWorker } from '#lib/data/serviceWorker.ts';
+	import { MAX_CANVAS_SIZE } from '#lib/sketches/canvasSize.ts';
 
 	let { children } = $props();
+
+	// The digital exhibition is not part of the app: it uses the whole window, and it neither
+	// registers the service worker nor offers its updates. Going from it to the app registers it.
+	const isExhibition = $derived(page.route.id?.startsWith('/(exhibition)') ?? false);
+
+	$effect(() => {
+		if (!isExhibition) registerServiceWorker();
+	});
 
 	// The screens adapt to the window until the art reaches MAX_CANVAS_SIZE (device pixels)
 	// plus its 16px margins; past that the whole app keeps that width, centered. It is set
@@ -30,11 +39,15 @@
 	{/if}
 </svelte:head>
 
-<div class="app">
+{#if isExhibition}
 	{@render children()}
-</div>
+{:else}
+	<div class="app">
+		{@render children()}
+	</div>
 
-<UpdateAvailablePrompt />
+	<UpdateAvailablePrompt />
+{/if}
 
 <style>
 	.app {
