@@ -57,6 +57,40 @@
 			}
 		</script>
 
+		<!-- Reloads once when a script of the app fails to load. Every deploy replaces the whole
+		     site, and GitHub Pages lets browsers cache the HTML for 10 minutes, so a page
+		     cached before a deploy may point to scripts that no longer exist. A reload asks
+		     the server for the page again. The timestamp in sessionStorage stops a reload loop
+		     if the script is really broken; without storage there is no reload. -->
+		<script>
+			(() => {
+				const KEY = 'martp_script_reload';
+				const isScriptLoadError = (error) =>
+					/dynamically imported module|Importing a module script failed|module script/i.test(
+						String(error && error.message)
+					);
+				const reloadOnce = () => {
+					try {
+						const last = Number(sessionStorage.getItem(KEY));
+						if (Date.now() - last < 30000) return false;
+						sessionStorage.setItem(KEY, String(Date.now()));
+					} catch {
+						return false;
+					}
+					location.reload();
+					return true;
+				};
+				// The entry scripts imported by SvelteKit's startup script.
+				addEventListener('unhandledrejection', (event) => {
+					if (isScriptLoadError(event.reason) && reloadOnce()) event.preventDefault();
+				});
+				// Chunks imported later, such as a route's code (Vite's preload helper).
+				addEventListener('vite:preloadError', (event) => {
+					if (reloadOnce()) event.preventDefault();
+				});
+			})();
+		</script>
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
