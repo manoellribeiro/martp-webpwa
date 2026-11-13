@@ -76,16 +76,104 @@ interface RemoteExhibitionContinentsResponse {
 	continents: RemoteExhibitionContinent[];
 }
 
-async function request(path: string, init: RequestInit = {}, signal?: AbortSignal) {
-	const headers = new Headers(init.headers);
-	headers.set(APP_CHECK_HEADER, await getAppCheckToken());
-	const response = await fetch(`${PUBLIC_MARTP_API_URL}/${path}`, { ...init, headers, signal });
-	if (!response.ok) throw new Error(`Martp API ${path}: HTTP ${response.status}`);
-	return response;
+/**
+ * The API (Cloud Run) and its database (Neon) sleep when nobody uses them, and the first request
+ * waits for both to wake up. Each attempt gets this long before it is given up.
+ */
+const REQUEST_TIMEOUT_MS = 30_000;
+/** An art upload carries the PNG, so it gets longer. */
+const UPLOAD_TIMEOUT_MS = 60_000;
+/** Wait before the first retry; doubled before the next one. */
+const RETRY_DELAY_MS = 2_000;
+
+class MartpApiHttpError extends Error {
+	constructor(
+		path: string,
+		readonly status: number
+	) {
+		super(`Martp API ${path}: HTTP ${status}`);
+	}
+}
+
+class MartpApiTimeoutError extends Error {
+	constructor(path: string, timeoutMs: number) {
+		super(`Martp API ${path}: no answer after ${timeoutMs / 1000}s`);
+	}
+}
+
+interface RequestOptions {
+	init?: RequestInit;
+	signal?: AbortSignal;
+	/** Extra attempts after a timeout, a network error or a server error. Only for reads. */
+	retries?: number;
+	timeoutMs?: number;
+}
+
+/** Waking up can end in a timeout, a dropped connection (TypeError) or a 5xx/429 answer. */
+function isWakingUpFailure(error: unknown): boolean {
+	if (error instanceof MartpApiTimeoutError || error instanceof TypeError) return true;
+	return error instanceof MartpApiHttpError && (error.status >= 500 || error.status === 429);
+}
+
+function wait(milliseconds: number, signal?: AbortSignal): Promise<void> {
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(resolve, milliseconds);
+		signal?.addEventListener(
+			'abort',
+			() => {
+				clearTimeout(timer);
+				reject(signal.reason);
+			},
+			{ once: true }
+		);
+	});
+}
+
+async function attempt(path: string, init: RequestInit, timeoutMs: number, signal?: AbortSignal) {
+	// AbortSignal.any and AbortSignal.timeout are too recent for the older phones of the audience.
+	const controller = new AbortController();
+	let timedOut = false;
+	const timer = setTimeout(() => {
+		timedOut = true;
+		controller.abort();
+	}, timeoutMs);
+	const forwardAbort = () => controller.abort(signal?.reason);
+	signal?.addEventListener('abort', forwardAbort);
+	try {
+		const headers = new Headers(init.headers);
+		headers.set(APP_CHECK_HEADER, await getAppCheckToken());
+		const response = await fetch(`${PUBLIC_MARTP_API_URL}/${path}`, {
+			...init,
+			headers,
+			signal: controller.signal
+		});
+		if (!response.ok) throw new MartpApiHttpError(path, response.status);
+		return response;
+	} catch (error) {
+		throw timedOut ? new MartpApiTimeoutError(path, timeoutMs) : error;
+	} finally {
+		clearTimeout(timer);
+		signal?.removeEventListener('abort', forwardAbort);
+	}
+}
+
+async function request(
+	path: string,
+	{ init = {}, signal, retries = 0, timeoutMs = REQUEST_TIMEOUT_MS }: RequestOptions = {}
+) {
+	for (let attemptNumber = 0; ; attemptNumber++) {
+		try {
+			return await attempt(path, init, timeoutMs, signal);
+		} catch (error) {
+			if (attemptNumber >= retries || signal?.aborted || !isWakingUpFailure(error)) throw error;
+			console.warn(`Martp API ${path}: retrying`, error);
+			await wait(RETRY_DELAY_MS * 2 ** attemptNumber, signal);
+		}
+	}
 }
 
 export async function getColorPalettes(): Promise<RemoteColorPalettesResponse> {
-	return (await request('color-palettes')).json();
+	return (await request('color-palettes', { retries: 1 })).json();
 }
 
 export async function reverseGeocode(
@@ -99,7 +187,7 @@ export async function reverseGeocode(
 		longitude: longitude.toString()
 	});
 	if (language) params.set('language', language);
-	return (await request(`geocoding/reverse?${params}`, {}, signal)).json();
+	return (await request(`geocoding/reverse?${params}`, { signal })).json();
 }
 
 /** Multipart request with the `art` JSON part and the `image` PNG part. */
@@ -107,7 +195,7 @@ export async function saveMapArt(art: RemoteSaveMapArtRequest, image: Blob): Pro
 	const body = new FormData();
 	body.append('art', new Blob([JSON.stringify(art)], { type: 'application/json' }));
 	body.append('image', image, `${art.id}.png`);
-	await request('map-arts', { method: 'POST', body });
+	await request('map-arts', { init: { method: 'POST', body }, timeoutMs: UPLOAD_TIMEOUT_MS });
 }
 
 /** Approved arts, newest first. A null `continent` means every continent. */
@@ -116,19 +204,19 @@ export async function getExhibitionMapArts(
 	signal?: AbortSignal
 ): Promise<RemoteExhibitionMapArtsResponse> {
 	const query = continent ? `?${new URLSearchParams({ continent })}` : '';
-	return (await request(`map-arts/exhibition${query}`, {}, signal)).json();
+	return (await request(`map-arts/exhibition${query}`, { signal, retries: 2 })).json();
 }
 
 /** Continents with approved arts and how many each has, the biggest first. */
 export async function getExhibitionContinents(
 	signal?: AbortSignal
 ): Promise<RemoteExhibitionContinentsResponse> {
-	return (await request('map-arts/exhibition/continents', {}, signal)).json();
+	return (await request('map-arts/exhibition/continents', { signal, retries: 2 })).json();
 }
 
 /** A random selection of approved arts for the globe, different on each call. */
 export async function getGlobeMapArts(
 	signal?: AbortSignal
 ): Promise<RemoteExhibitionMapArtsResponse> {
-	return (await request('map-arts/exhibition/globe', {}, signal)).json();
+	return (await request('map-arts/exhibition/globe', { signal, retries: 2 })).json();
 }

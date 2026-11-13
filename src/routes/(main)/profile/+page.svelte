@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 	import logo from '#lib/assets/martp_logo.svg';
 	import MartpButton from '#lib/components/MartpButton.svelte';
 	import MartpTextInput from '#lib/components/MartpTextInput.svelte';
@@ -15,8 +16,9 @@
 
 	onMount(() => mainViewModel.hideUserInfoBadge());
 
-	// The app opens this URL, the web version itself, until the digital exhibition exists.
-	const DIGITAL_EXHIBITION_URL = 'https://martp.app/edit';
+	// The app opens https://martp.app/exhibition; here it is the same site, in a new tab like
+	// the app's browser, as the button says.
+	const DIGITAL_EXHIBITION_URL = resolve('/(exhibition)/exhibition');
 
 	/** Saves once the user has stopped typing for 1 second, as the app does. */
 	function saveWhenUserStopsTyping(actionToExecute: () => void) {

@@ -14,6 +14,8 @@ const en = {
 		"You have created a lot of arts in the last hour. To keep Martp free for everyone, you can create a new one in %s min.",
 	/** Header chip of the success screen; the app's success_saved_to_gallery, but the web has no gallery. */
 	success_art_sent: 'Art sent',
+	/** Shown while the color palettes come from a sleeping Martp API (the app shows its own loading state). */
+	loading_color_palettes: "Loading color palettes…",
 	/** Digital exhibition rooms: the API's continents (src/lib/domain/continent.ts). */
 	continent_africa: 'Africa',
 	continent_antarctica: 'Antarctica',
@@ -57,7 +59,29 @@ const en = {
 	previous_art: "Previous art",
 	next_art: "Next art",
 	room_loading_error: "Could not open this room. Check your connection and try again.",
-	room_empty: "This room has no arts yet."
+	room_empty: "This room has no arts yet.",
+	/** Digital exhibition: the About dialog. */
+	about_martp_title: "About Martp",
+	about_martp_intro: "Martp is a large-scale interactive art generator that uses geolocation as its interface. It is an open-source, educational project developed at the Federal University of Bahia, in Brazil, and used by people all over the world.",
+	about_martp_how: "It takes your location and your choices and turns them into abstract map images, using the Processing framework to apply different colors and filters.",
+	about_martp_exhibition: "This digital exhibition is built from arts created all over the world. Anyone can add their own with the Android app or its web version.",
+	about_martp_community: "Building Martp put me in touch with creative coders from many countries and made me a contributor to the Processing open-source project.",
+	about_martp_references: "References that inspired me while creating Martp",
+	about_martp_takawo_sketches: "Takawo's sketches on OpenProcessing",
+	about_martp_signature: "Manoel Ribeiro, creator of Martp",
+	/** Digital exhibition: the Contact dialog. The subjects and bodies prefill the email. */
+	contact_description: "Choose what it is about. Each option opens an email to me.",
+	contact_remove_art: "Remove one of my arts",
+	contact_remove_art_description: "Tell me the art's title and date, or your username, and I'll take it down.",
+	contact_remove_art_subject: "Remove my art",
+	contact_remove_art_body: "Title of the art:\nDate of the art:\nOr your username:\n",
+	contact_report_problem: "Report a problem",
+	contact_report_problem_description: "Something broken, or an art that shouldn't be here.",
+	contact_report_problem_subject: "Problem in the Martp exhibition",
+	contact_report_problem_body: "What happened:\nPage or art:\n",
+	contact_say_hi: "Collaborate or say hi",
+	contact_say_hi_description: "For collaborations, press, schools or just a kind word.",
+	contact_on_instagram: "%s on Instagram"
 };
 
 type WebStrings = typeof en;
@@ -74,6 +98,7 @@ const de: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Du hast in der letzten Stunde sehr viele Kunstwerke erstellt. Damit Martp für alle kostenlos bleibt, kannst du in %s Min. ein neues erstellen.",
 	success_art_sent: 'Kunstwerk gesendet',
+	loading_color_palettes: "Farbpaletten werden geladen…",
 	continent_africa: 'Afrika',
 	continent_antarctica: 'Antarktis',
 	continent_asia: 'Asien',
@@ -112,7 +137,27 @@ const de: WebStrings = {
 	previous_art: "Vorheriges Kunstwerk",
 	next_art: "Nächstes Kunstwerk",
 	room_loading_error: "Dieser Raum konnte nicht geöffnet werden. Prüfe deine Verbindung und versuche es erneut.",
-	room_empty: "Dieser Raum hat noch keine Kunstwerke."
+	room_empty: "Dieser Raum hat noch keine Kunstwerke.",
+	about_martp_title: "Über Martp",
+	about_martp_intro: "Martp ist ein groß angelegter interaktiver Kunstgenerator, der Geolokalisierung als Schnittstelle nutzt. Es ist ein quelloffenes Bildungsprojekt, das an der Bundesuniversität von Bahia in Brasilien entwickelt wurde und von Menschen auf der ganzen Welt genutzt wird.",
+	about_martp_how: "Es verwandelt deinen Standort und deine Auswahl in abstrakte Kartenbilder und nutzt das Processing-Framework, um verschiedene Farben und Filter anzuwenden.",
+	about_martp_exhibition: "Diese digitale Ausstellung besteht aus Kunstwerken, die auf der ganzen Welt entstanden sind. Alle können mit der Android-App oder ihrer Webversion ein eigenes hinzufügen.",
+	about_martp_community: "Durch Martp kam ich mit Creative Codern aus vielen Ländern in Kontakt und wurde zum Mitwirkenden am Open-Source-Projekt Processing.",
+	about_martp_references: "Referenzen, die mich bei der Entwicklung von Martp inspiriert haben",
+	about_martp_takawo_sketches: "Takawos Sketches auf OpenProcessing",
+	about_martp_signature: "Manoel Ribeiro, Schöpfer von Martp",
+	contact_description: "Wähle dein Anliegen. Jede Option öffnet eine E-Mail an mich.",
+	contact_remove_art: "Eines meiner Kunstwerke entfernen",
+	contact_remove_art_description: "Nenne mir Titel und Datum des Kunstwerks oder deinen Benutzernamen, und ich nehme es heraus.",
+	contact_remove_art_subject: "Mein Kunstwerk entfernen",
+	contact_remove_art_body: "Titel des Kunstwerks:\nDatum des Kunstwerks:\nOder dein Benutzername:\n",
+	contact_report_problem: "Ein Problem melden",
+	contact_report_problem_description: "Etwas funktioniert nicht, oder ein Kunstwerk gehört nicht hierher.",
+	contact_report_problem_subject: "Problem in der Martp-Ausstellung",
+	contact_report_problem_body: "Was ist passiert:\nSeite oder Kunstwerk:\n",
+	contact_say_hi: "Zusammenarbeiten oder Hallo sagen",
+	contact_say_hi_description: "Für Kooperationen, Presse, Schulen oder einfach ein nettes Wort.",
+	contact_on_instagram: "%s auf Instagram"
 };
 
 const es: WebStrings = {
@@ -127,6 +172,7 @@ const es: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Has creado muchas artes en la última hora. Para que Martp siga siendo gratis para todos, podrás crear una nueva en %s min.",
 	success_art_sent: 'Arte enviada',
+	loading_color_palettes: "Cargando paletas de colores…",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
 	continent_asia: 'Asia',
@@ -165,7 +211,27 @@ const es: WebStrings = {
 	previous_art: "Arte anterior",
 	next_art: "Arte siguiente",
 	room_loading_error: "No se pudo abrir esta sala. Revisa tu conexión e inténtalo de nuevo.",
-	room_empty: "Esta sala aún no tiene artes."
+	room_empty: "Esta sala aún no tiene artes.",
+	about_martp_title: "Sobre Martp",
+	about_martp_intro: "Martp es un generador de arte interactivo a gran escala que usa la geolocalización como interfaz. Es un proyecto educativo y de código abierto, desarrollado en la Universidad Federal de Bahía, en Brasil, y usado por personas de todo el mundo.",
+	about_martp_how: "Toma tu ubicación y tus elecciones y las convierte en imágenes abstractas de mapas, usando el framework Processing para aplicar diferentes colores y filtros.",
+	about_martp_exhibition: "Esta exposición digital está formada por artes creadas en todo el mundo. Cualquier persona puede añadir la suya con la aplicación de Android o su versión web.",
+	about_martp_community: "Crear Martp me acercó a programadores creativos de muchos países y me convirtió en colaborador del proyecto de código abierto Processing.",
+	about_martp_references: "Referencias que me inspiraron al crear Martp",
+	about_martp_takawo_sketches: "Los sketches de Takawo en OpenProcessing",
+	about_martp_signature: "Manoel Ribeiro, creador de Martp",
+	contact_description: "Elige el motivo. Cada opción abre un correo para mí.",
+	contact_remove_art: "Quitar una de mis artes",
+	contact_remove_art_description: "Dime el título y la fecha del arte, o tu nombre de usuario, y lo retiraré.",
+	contact_remove_art_subject: "Quitar mi arte",
+	contact_remove_art_body: "Título del arte:\nFecha del arte:\nO tu nombre de usuario:\n",
+	contact_report_problem: "Informar un problema",
+	contact_report_problem_description: "Algo no funciona, o un arte que no debería estar aquí.",
+	contact_report_problem_subject: "Problema en la exposición de Martp",
+	contact_report_problem_body: "Qué pasó:\nPágina o arte:\n",
+	contact_say_hi: "Colaborar o saludar",
+	contact_say_hi_description: "Para colaboraciones, prensa, escuelas o simplemente unas palabras amables.",
+	contact_on_instagram: "%s en Instagram"
 };
 
 const fr: WebStrings = {
@@ -180,6 +246,7 @@ const fr: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Vous avez créé beaucoup d'œuvres au cours de la dernière heure. Pour que Martp reste gratuit pour tout le monde, vous pourrez en créer une nouvelle dans %s min.",
 	success_art_sent: 'Œuvre envoyée',
+	loading_color_palettes: "Chargement des palettes de couleurs…",
 	continent_africa: 'Afrique',
 	continent_antarctica: 'Antarctique',
 	continent_asia: 'Asie',
@@ -218,7 +285,27 @@ const fr: WebStrings = {
 	previous_art: "Œuvre précédente",
 	next_art: "Œuvre suivante",
 	room_loading_error: "Impossible d'ouvrir cette salle. Vérifiez votre connexion et réessayez.",
-	room_empty: "Cette salle n'a pas encore d'œuvres."
+	room_empty: "Cette salle n'a pas encore d'œuvres.",
+	about_martp_title: "À propos de Martp",
+	about_martp_intro: "Martp est un générateur d'art interactif à grande échelle qui utilise la géolocalisation comme interface. C'est un projet éducatif et open source, développé à l'Université fédérale de Bahia, au Brésil, et utilisé par des personnes du monde entier.",
+	about_martp_how: "Il transforme votre position et vos choix en images abstraites de cartes, en utilisant le framework Processing pour appliquer différentes couleurs et filtres.",
+	about_martp_exhibition: "Cette exposition numérique est faite d'œuvres créées partout dans le monde. Chacun peut y ajouter la sienne avec l'application Android ou sa version web.",
+	about_martp_community: "Créer Martp m'a mis en contact avec des creative coders de nombreux pays et a fait de moi un contributeur du projet open source Processing.",
+	about_martp_references: "Les références qui m'ont inspiré pendant la création de Martp",
+	about_martp_takawo_sketches: "Les sketches de Takawo sur OpenProcessing",
+	about_martp_signature: "Manoel Ribeiro, créateur de Martp",
+	contact_description: "Choisissez le motif. Chaque option ouvre un e-mail qui m'est adressé.",
+	contact_remove_art: "Retirer une de mes œuvres",
+	contact_remove_art_description: "Indiquez-moi le titre et la date de l'œuvre, ou votre nom d'utilisateur, et je la retirerai.",
+	contact_remove_art_subject: "Retirer mon œuvre",
+	contact_remove_art_body: "Titre de l'œuvre :\nDate de l'œuvre :\nOu votre nom d'utilisateur :\n",
+	contact_report_problem: "Signaler un problème",
+	contact_report_problem_description: "Quelque chose ne fonctionne pas, ou une œuvre qui ne devrait pas être là.",
+	contact_report_problem_subject: "Problème dans l'exposition Martp",
+	contact_report_problem_body: "Ce qui s'est passé :\nPage ou œuvre :\n",
+	contact_say_hi: "Collaborer ou dire bonjour",
+	contact_say_hi_description: "Pour des collaborations, la presse, les écoles ou simplement un mot gentil.",
+	contact_on_instagram: "%s sur Instagram"
 };
 
 const ptBR: WebStrings = {
@@ -233,6 +320,7 @@ const ptBR: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Você criou muitas artes na última hora. Para manter o Martp gratuito para todos, você poderá criar uma nova em %s min.",
 	success_art_sent: 'Arte enviada',
+	loading_color_palettes: "Carregando paletas de cores…",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
 	continent_asia: 'Ásia',
@@ -271,7 +359,27 @@ const ptBR: WebStrings = {
 	previous_art: "Arte anterior",
 	next_art: "Próxima arte",
 	room_loading_error: "Não foi possível abrir esta sala. Verifique sua conexão e tente novamente.",
-	room_empty: "Esta sala ainda não tem artes."
+	room_empty: "Esta sala ainda não tem artes.",
+	about_martp_title: "Sobre o Martp",
+	about_martp_intro: "O Martp é um gerador de arte interativa em larga escala que usa a geolocalização como interface. É um projeto educacional e de código aberto, desenvolvido na Universidade Federal da Bahia e usado por pessoas do mundo todo.",
+	about_martp_how: "Ele usa a sua localização e as suas escolhas para criar imagens abstratas de mapas, aplicando cores e filtros diferentes com o framework Processing.",
+	about_martp_exhibition: "Esta exposição digital é formada por artes criadas no mundo todo. Qualquer pessoa pode adicionar a sua pelo aplicativo Android ou pela versão web.",
+	about_martp_community: "Construir o Martp me aproximou de programadores criativos de vários países e me tornou contribuidor do projeto de código aberto Processing.",
+	about_martp_references: "Referências que me inspiraram na criação do Martp",
+	about_martp_takawo_sketches: "Sketches do Takawo no OpenProcessing",
+	about_martp_signature: "Manoel Ribeiro, criador do Martp",
+	contact_description: "Escolha o assunto. Cada opção abre um e-mail para mim.",
+	contact_remove_art: "Remover uma das minhas artes",
+	contact_remove_art_description: "Me diga o título e a data da arte, ou o seu nome de usuário, e eu a retiro.",
+	contact_remove_art_subject: "Remover minha arte",
+	contact_remove_art_body: "Título da arte:\nData da arte:\nOu o seu nome de usuário:\n",
+	contact_report_problem: "Relatar um problema",
+	contact_report_problem_description: "Algo quebrado, ou uma arte que não deveria estar aqui.",
+	contact_report_problem_subject: "Problema na exposição do Martp",
+	contact_report_problem_body: "O que aconteceu:\nPágina ou arte:\n",
+	contact_say_hi: "Colaborar ou dar um oi",
+	contact_say_hi_description: "Para colaborações, imprensa, escolas ou só uma palavra gentil.",
+	contact_on_instagram: "%s no Instagram"
 };
 
 export default { en, de, es, fr, 'pt-BR': ptBR };

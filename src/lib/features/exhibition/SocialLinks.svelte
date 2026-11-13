@@ -23,9 +23,11 @@
 </ul>
 
 <style>
+	/* Each icon is centered in a 40px tap area; the row moves by the area's 10px of padding so
+	   the last icon lines up with the content's right edge. */
 	.social-links {
 		display: flex;
-		margin: 0;
+		margin: 0 -10px 0 0;
 		padding: 0;
 		list-style: none;
 	}
@@ -37,11 +39,6 @@
 		width: 40px;
 		height: 40px;
 		color: var(--blue);
-	}
-
-	/* The last icon lines up with the content's right edge. */
-	li:last-child a {
-		justify-content: flex-end;
 	}
 
 	/* The URL is quoted because Vite inlines small SVGs as data URLs, which contain quotes. */

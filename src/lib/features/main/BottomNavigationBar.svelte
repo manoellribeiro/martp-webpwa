@@ -6,10 +6,12 @@
 
 	interface Props {
 		userInfoBadgeVisible: boolean;
+		/** While the color palettes load, the create button waits, with a spinner. */
+		createNewArtLoading: boolean;
 		onCreateNewArt: () => void;
 	}
 
-	let { userInfoBadgeVisible, onCreateNewArt }: Props = $props();
+	let { userInfoBadgeVisible, createNewArtLoading, onCreateNewArt }: Props = $props();
 
 	interface MenuItem {
 		href: string;
@@ -85,11 +87,17 @@
 			type="button"
 			class="create-new-art-fab"
 			aria-label={strings.create_new_art}
+			aria-busy={createNewArtLoading}
+			disabled={createNewArtLoading}
 			onclick={onCreateNewArt}
 		>
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.008" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<path d="M12,13V7M15,10.001L9,10M19,10.2C19,14.176 15.5,17.4 12,21C8.5,17.4 5,14.176 5,10.2C5,6.224 8.134,3 12,3C15.866,3 19,6.224 19,10.2Z" />
-			</svg>
+			{#if createNewArtLoading}
+				<span class="fab-spinner" aria-hidden="true"></span>
+			{:else}
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.008" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M12,13V7M15,10.001L9,10M19,10.2C19,14.176 15.5,17.4 12,21C8.5,17.4 5,14.176 5,10.2C5,6.224 8.134,3 12,3C15.866,3 19,6.224 19,10.2Z" />
+				</svg>
+			{/if}
 		</button>
 	</div>
 
@@ -196,5 +204,25 @@
 	.create-new-art-fab svg {
 		width: 32px;
 		height: 32px;
+	}
+
+	.create-new-art-fab:disabled {
+		cursor: progress;
+	}
+
+	.fab-spinner {
+		width: 26px;
+		height: 26px;
+		box-sizing: border-box;
+		border: 3px solid rgb(0 0 0 / 0.15);
+		border-top-color: var(--black);
+		border-radius: 50%;
+		animation: fab-spin 0.8s linear infinite;
+	}
+
+	@keyframes fab-spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

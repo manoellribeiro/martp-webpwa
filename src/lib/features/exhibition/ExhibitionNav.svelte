@@ -1,16 +1,28 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { strings } from '#lib/strings.ts';
-	import { LINKEDIN_URL } from './links.ts';
+	import AboutMartpDialog from './AboutMartpDialog.svelte';
+	import ContactDialog from './ContactDialog.svelte';
 
 	let { direction }: { direction: 'row' | 'column' } = $props();
+
+	let openDialog = $state<'about' | 'contact' | null>(null);
 </script>
 
-<!-- About opens the app's Martp info screen; Contact is the LinkedIn profile that screen points to. -->
+<!-- Both open a dialog: what Martp is, and the ways to get in touch. -->
 <nav class="exhibition-nav" class:column={direction === 'column'}>
-	<a href={resolve('/(main)/about')}>{strings.menu_info}</a>
-	<a href={LINKEDIN_URL} target="_blank" rel="noopener">{strings.contact_action}</a>
+	<button class="link" aria-haspopup="dialog" onclick={() => (openDialog = 'about')}>
+		{strings.menu_info}
+	</button>
+	<button class="link" aria-haspopup="dialog" onclick={() => (openDialog = 'contact')}>
+		{strings.contact_action}
+	</button>
 </nav>
+
+{#if openDialog === 'about'}
+	<AboutMartpDialog onDismiss={() => (openDialog = null)} />
+{:else if openDialog === 'contact'}
+	<ContactDialog onDismiss={() => (openDialog = null)} />
+{/if}
 
 <style>
 	.exhibition-nav {
@@ -23,14 +35,22 @@
 		gap: 10px;
 	}
 
-	a {
+	/* Buttons that look like links. */
+	.link {
+		align-self: flex-start;
+		padding: 0;
+		border: none;
+		background: none;
 		color: var(--green-darker);
+		font: inherit;
 		font-size: 17px;
 		font-weight: 500;
+		text-align: left;
 		text-decoration: none;
+		cursor: pointer;
 	}
 
-	a:hover {
+	.link:hover {
 		text-decoration: underline;
 	}
 </style>

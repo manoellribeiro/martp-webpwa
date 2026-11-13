@@ -10,7 +10,11 @@
 	// bottom navigation bar render inside this layout.
 	let { children } = $props();
 
-	onMount(() => mainViewModel.handleBadgesVisibilities());
+	onMount(() => {
+		mainViewModel.handleBadgesVisibilities();
+		// Started here, so the create button waits for them whatever screen opens first.
+		mainViewModel.loadColorPalettes();
+	});
 
 	async function verifyPermissionToAccessLocation() {
 		switch (await checkLocationPermission()) {
@@ -38,6 +42,7 @@
 
 <BottomNavigationBar
 	userInfoBadgeVisible={mainViewModel.userInfoBadgeVisible}
+	createNewArtLoading={mainViewModel.colorPalettesLoading}
 	onCreateNewArt={verifyPermissionToAccessLocation}
 />
 

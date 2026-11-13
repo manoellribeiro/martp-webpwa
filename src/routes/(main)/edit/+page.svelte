@@ -8,8 +8,6 @@
 		setMapArtStylePreference,
 		setMapZoomPreference
 	} from '#lib/data/artSettings.ts';
-	import { getColorsPalettes } from '#lib/data/colorPalettes.ts';
-	import type { ColorPalette } from '#lib/domain/colorPalettes.ts';
 	import {
 		sliderPositionToZoom,
 		zoomToSliderPosition,
@@ -17,25 +15,31 @@
 	} from '#lib/domain/sketchArtType.ts';
 	import { artStyleModels } from '#lib/features/artStyleSettings/mapArtStyleModels.ts';
 	import SelectableCard from '#lib/features/artStyleSettings/SelectableCard.svelte';
+	import { mainViewModel } from '#lib/features/main/main.viewmodel.svelte.ts';
 	import { strings } from '#lib/strings.ts';
 
 	// Port of ArtStyleSettingsFragment and the art style parts of MainViewModel. The settings
 	// come from localStorage synchronously; only the color palettes, which come from the
-	// Martp API (or its localStorage cache), are loaded, and their section waits for them.
+	// Martp API (or its localStorage cache), are loaded by the main view model, and their
+	// section shows a loading indicator until they arrive.
 	// The app saves each change after 1.5s without changes; localStorage writes are cheap,
 	// so they are saved right away and a new art never starts from stale settings.
 
 	let selectedArtStyle = $state(getArtStylePreference());
-	let colorPalettes = $state<ColorPalette[] | null>(null);
-	let selectedColorPalette = $state<string | null>(null);
-
-	getColorsPalettes().then((loadedColorPalettes) => {
+	const colorPalettes = $derived(mainViewModel.colorPalettes);
+	/** The palette tapped on this screen; until then the saved one, or the first. */
+	let chosenColorPalette = $state<string | null>(null);
+	const selectedColorPalette = $derived.by(() => {
+		if (chosenColorPalette) return chosenColorPalette;
 		const savedColorPaletteName = getColorPalettePreference();
-		selectedColorPalette =
-			loadedColorPalettes.find((colorPalette) => colorPalette.name === savedColorPaletteName)
-				?.name ?? loadedColorPalettes[0].name;
-		colorPalettes = loadedColorPalettes;
+		return (
+			colorPalettes?.find((colorPalette) => colorPalette.name === savedColorPaletteName)?.name ??
+			colorPalettes?.[0].name ??
+			null
+		);
 	});
+
+	mainViewModel.loadColorPalettes();
 	// The slider holds its position (0..1) instead of the zoom itself, so switching to an
 	// art style with another zoom range keeps the thumb where it was
 	let sliderPosition = $state(zoomToSliderPosition(getArtStylePreference(), getMapZoomPreference()));
@@ -50,7 +54,7 @@
 	}
 
 	function setColorPalette(name: string) {
-		selectedColorPalette = name;
+		chosenColorPalette = name;
 		setColorPalettePreference(name);
 	}
 </script>
@@ -110,37 +114,69 @@
 		</div>
 	</section>
 
-	{#if selectedArtStyle === 'COLORFUL_MAP' && colorPalettes}
+	{#if selectedArtStyle === 'COLORFUL_MAP'}
 		<section class="section">
 			<h2 class="text-screen-title section-title">{strings.color_palette}</h2>
 			<p class="text-middle-screen-info section-description list-description">
 				{strings.choose_complete_color_set}
 			</p>
-			<div class="cards" role="radiogroup" aria-label={strings.color_palette}>
-				{#each colorPalettes as colorPalette (colorPalette.name)}
-					<SelectableCard
-						name="color-palette"
-						value={colorPalette.name}
-						selected={colorPalette.name === selectedColorPalette}
-						padding={[12, 12]}
-						onselect={() => setColorPalette(colorPalette.name)}
-					>
-						<span class="color-palette">
-							<span class="text-screen-title card-title color-palette-name">{colorPalette.name}</span>
-							<span class="colors">
-								{#each colorPalette.colors as color, index (index)}
-									<span class="color" style:background={color}></span>
-								{/each}
+			{#if !colorPalettes}
+				<p class="color-palettes-loading" role="status">
+					<span class="spinner" aria-hidden="true"></span>
+					{strings.loading_color_palettes}
+				</p>
+			{:else}
+				<div class="cards" role="radiogroup" aria-label={strings.color_palette}>
+					{#each colorPalettes as colorPalette (colorPalette.name)}
+						<SelectableCard
+							name="color-palette"
+							value={colorPalette.name}
+							selected={colorPalette.name === selectedColorPalette}
+							padding={[12, 12]}
+							onselect={() => setColorPalette(colorPalette.name)}
+						>
+							<span class="color-palette">
+								<span class="text-screen-title card-title color-palette-name">{colorPalette.name}</span>
+								<span class="colors">
+									{#each colorPalette.colors as color, index (index)}
+										<span class="color" style:background={color}></span>
+									{/each}
+								</span>
 							</span>
-						</span>
-					</SelectableCard>
-				{/each}
-			</div>
+						</SelectableCard>
+					{/each}
+				</div>
+			{/if}
 		</section>
 	{/if}
 </div>
 
 <style>
+	.color-palettes-loading {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin: 16px 0 0;
+		color: var(--dark-d4);
+		font-size: 14px;
+	}
+
+	.spinner {
+		width: 20px;
+		height: 20px;
+		box-sizing: border-box;
+		border: 2.5px solid var(--light-l1);
+		border-top-color: var(--blue);
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
 	.header {
 		padding-top: 16px;
 	}
