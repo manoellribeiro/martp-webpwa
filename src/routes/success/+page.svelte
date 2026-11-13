@@ -36,9 +36,32 @@
 		return () => URL.revokeObjectURL(url);
 	});
 
-	function onArtImageLoad(event: Event) {
+	// The art's shape when its size can't be read, so it never collapses to nothing
+	const FALLBACK_ART_SIZE = { width: 16, height: 9 };
+
+	/**
+	 * The size of the loaded art. Some browsers have reported 0 here, which made the ratio
+	 * invalid and the art 0px wide, so it is checked and read from the PNG itself if needed.
+	 */
+	async function onArtImageLoad(event: Event) {
 		const image = event.currentTarget as HTMLImageElement;
-		artImageSize = { width: image.naturalWidth, height: image.naturalHeight };
+		if (isValidSize(image.naturalWidth, image.naturalHeight)) {
+			artImageSize = { width: image.naturalWidth, height: image.naturalHeight };
+			return;
+		}
+		try {
+			const bitmap = await createImageBitmap(savedArt!);
+			const size = { width: bitmap.width, height: bitmap.height };
+			bitmap.close();
+			artImageSize = isValidSize(size.width, size.height) ? size : FALLBACK_ART_SIZE;
+		} catch (e) {
+			console.error('Success.onArtImageLoad', e);
+			artImageSize = FALLBACK_ART_SIZE;
+		}
+	}
+
+	function isValidSize(width: number, height: number): boolean {
+		return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0;
 	}
 
 	/** MainActivity.newIntentOpeningEditTab + finish(). */
@@ -213,10 +236,14 @@
 		container-type: size;
 	}
 
-	/* Fills the width, or the height left by the caption, keeping the art's ratio. */
+	/* Fills the width, or the height left by the caption, keeping the art's ratio. Stretched
+	   and centered by its margins: if the width rule ever fails, the art fills the width
+	   instead of shrinking to nothing. */
 	.saved-art {
 		position: relative;
 		flex-shrink: 0;
+		align-self: stretch;
+		margin: 0 auto;
 		width: min(100cqw, (100cqh - var(--caption-height)) * var(--art-ratio, 1));
 		container-type: inline-size;
 	}

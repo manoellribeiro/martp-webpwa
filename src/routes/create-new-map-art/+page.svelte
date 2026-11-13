@@ -26,7 +26,10 @@
 	// container is hidden. Canvas pixels are device pixels, as on Android.
 	let canvasWidth = 0;
 	let canvasHeight = 0;
-	// The art's ratio once measured. Before that the box is the layout's 200px tall.
+	// Before the art is measured the box is the layout's 200px tall. After, it keeps the art's
+	// ratio until the art's canvas is in (p5 loads the map first), and then the canvas sets its
+	// height: with the ratio on the box, Safari drew the canvas shorter than it, leaving a gray
+	// band under the art.
 	let artAspectRatio = $state<string | null>(null);
 
 	// The app's art is 200dp tall at any width. Here the height grows with the width in a
@@ -43,8 +46,6 @@
 			Math.round(Math.max(MIN_ART_HEIGHT * devicePixelRatio, canvasWidth / ART_ASPECT_RATIO)),
 			MAX_CANVAS_SIZE
 		);
-		// The box keeps the canvas ratio, so it shrinks instead of overflowing if the window
-		// gets narrower after the art is drawn.
 		artAspectRatio = `${canvasWidth} / ${canvasHeight}`;
 		startToGenerateMapArt();
 		return () => viewModel.clear();
@@ -150,7 +151,7 @@
 		class:invisible={uiState.type === 'idle'}
 		class:gone={uiState.type === 'loading' || uiState.type === 'error'}
 		style:height={artAspectRatio && 'auto'}
-		style:aspect-ratio={artAspectRatio}
+		style:--art-aspect-ratio={artAspectRatio}
 		bind:this={mapArtsContainer}
 	></div>
 
@@ -289,6 +290,10 @@
 
 	.map-arts-container :global(canvas) {
 		display: block;
+	}
+
+	.map-arts-container:not(:has(:global(.martp-art))) {
+		aspect-ratio: var(--art-aspect-ratio, auto);
 	}
 
 	.invisible {

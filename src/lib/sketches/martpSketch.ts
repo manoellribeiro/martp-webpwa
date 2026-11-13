@@ -50,8 +50,12 @@ export function createMartpCanvas(
 	// After createCanvas: in p5 2.x it creates the renderer at the display density, which
 	// would discard an earlier pixelDensity(1) and draw (and save) the art up to 3x larger.
 	p.pixelDensity(1);
+	// Fills the width and keeps its ratio, so it shrinks if the window gets narrower after the
+	// art is drawn; its container takes this height.
 	canvas.style.width = '100%';
-	canvas.style.height = '100%';
+	canvas.style.height = 'auto';
+	// Tells the page this is the art, not p5's 100x100 canvas from before setup
+	canvas.classList.add('martp-art');
 	return canvas;
 }
 
