@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { artStyleModels } from '#lib/features/artStyleSettings/mapArtStyleModels.ts';
+	import { shareArtImage } from '#lib/data/shareArtImage.ts';
 	import { getSavedArt } from '#lib/features/success/savedArt.ts';
 	import { framePadding, frameThickness } from '#lib/sketches/martpSketch.ts';
 	import { formatString, strings } from '#lib/strings.ts';
@@ -40,30 +41,6 @@
 		goto(resolve('/(main)/edit'), { replaceState: true });
 	}
 
-	/**
-	 * Context.shareArtImage: the Web Share API with the PNG and share_art_message. Browsers
-	 * that can't share files download the PNG instead.
-	 */
-	async function shareArtImage() {
-		if (!savedArt) return;
-		const file = new File([savedArt], 'martp.png', { type: 'image/png' });
-		const shareData: ShareData = { files: [file], text: strings.share_art_message };
-		if (navigator.canShare?.(shareData)) {
-			try {
-				await navigator.share(shareData);
-			} catch (e) {
-				// AbortError: the user closed the share sheet.
-				if (!(e instanceof DOMException && e.name === 'AbortError')) console.error(e);
-			}
-			return;
-		}
-		const link = document.createElement('a');
-		link.href = URL.createObjectURL(savedArt);
-		link.download = file.name;
-		link.click();
-		setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-	}
-
 	const colorsRows = [
 		['var(--blue)', 'var(--yellow)', 'var(--green)'],
 		['var(--error-medium)', 'var(--green-darker)', 'var(--light-yellow)']
@@ -81,7 +58,7 @@
 						d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM10,17l-5,-5 1.41,-1.41L10,14.17l7.59,-7.59L19,8l-9,9z"
 					/>
 				</svg>
-				{strings.success_art_sent}
+				{strings.success_saved_to_gallery}
 			</p>
 			<h1 class="text-screen-title title">{strings.success_title}</h1>
 		</header>
@@ -108,7 +85,7 @@
 						type="button"
 						class="share"
 						aria-label={strings.success_share}
-						onclick={shareArtImage}
+						onclick={() => savedArt && shareArtImage(savedArt)}
 					>
 						<!-- ic_share.xml -->
 						<svg

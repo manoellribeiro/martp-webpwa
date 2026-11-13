@@ -3,7 +3,13 @@ import { getArtCreationLimit, recordArtCreation } from '#lib/data/artCreationLim
 import { getSelectedColorPalette } from '#lib/data/colorPalettes.ts';
 import { getCurrentLocation } from '#lib/data/location.ts';
 import { fetchStaticMapImage } from '#lib/data/mapbox.ts';
-import { reverseGeocode, saveMapArt, type RemoteSaveMapArtRequest } from '#lib/data/martpApi.ts';
+import { saveMapArtEntity, type MapArtEntity } from '#lib/data/mapArts.ts';
+import {
+	reverseGeocode,
+	saveMapArt,
+	type RemoteMapLayersColors,
+	type RemoteSaveMapArtRequest
+} from '#lib/data/martpApi.ts';
 import {
 	fetchCurrentUserInfo,
 	setUserEmail,
@@ -155,30 +161,32 @@ export class CreateNewMapArtViewModel {
 		try {
 			setUserName(updateUserInfo.username ?? '', updateUserInfo.id);
 			setUserEmail(updateUserInfo.email ?? '', updateUserInfo.id);
-			const art: RemoteSaveMapArtRequest = {
+			const colorsLayers: RemoteMapLayersColors | null = mapLayersColors && {
+				roadsColor: mapLayersColors.roadsColor ?? null,
+				buildingStrokeColor: mapLayersColors.buildingStrokeColor ?? null,
+				buildingColor: mapLayersColors.buildingColor ?? null,
+				roadsPathColor: mapLayersColors.roadsPathColor ?? null,
+				waterColor: mapLayersColors.waterColor ?? null,
+				landOthersColor: mapLayersColors.landOthersColor ?? null
+			};
+			const newMartp: MapArtEntity = {
 				id: crypto.randomUUID(),
 				title,
+				description: null,
 				latitude,
 				longitude,
 				dateInMillis: Date.now(),
+				image: await getArtImage(),
 				sketchArtType,
 				colorPalette: colorPalette?.name ?? null,
-				colorsLayers: {
-					roadsColor: mapLayersColors?.roadsColor ?? null,
-					buildingStrokeColor: mapLayersColors?.buildingStrokeColor ?? null,
-					buildingColor: mapLayersColors?.buildingColor ?? null,
-					roadsPathColor: mapLayersColors?.roadsPathColor ?? null,
-					waterColor: mapLayersColors?.waterColor ?? null,
-					landOthersColor: mapLayersColors?.landOthersColor ?? null
-				},
-				email: updateUserInfo.email,
-				username: updateUserInfo.username
+				colorsLayers
 			};
-			const image = await getArtImage();
-			this.uploadMapArt(art, image);
-			return image;
+			await saveMapArtEntity(newMartp);
+			this.uploadMapArt(newMartp, updateUserInfo);
+			return newMartp.image;
 		} catch (e) {
-			this.emitNewState({ type: 'error', failure: new UnknownErrorFailure(String(e)) });
+			const failure = e instanceof Failure ? e : new UnknownErrorFailure(String(e));
+			this.emitNewState({ type: 'error', failure });
 			return null;
 		} finally {
 			this.isActionButtonLoading = false;
@@ -186,8 +194,29 @@ export class CreateNewMapArtViewModel {
 	}
 
 	/** MartpRepository.uploadMapArt: fire and forget, failures are only logged. */
-	private uploadMapArt(art: RemoteSaveMapArtRequest, image: Blob) {
-		saveMapArt(art, image).catch((e) => console.error('CreateNewMapArtViewModel.uploadMapArt', e));
+	private uploadMapArt(mapArt: MapArtEntity, userInfo: UserInfo) {
+		const art: RemoteSaveMapArtRequest = {
+			id: mapArt.id,
+			title: mapArt.title,
+			latitude: mapArt.latitude,
+			longitude: mapArt.longitude,
+			dateInMillis: mapArt.dateInMillis,
+			sketchArtType: mapArt.sketchArtType,
+			colorPalette: mapArt.colorPalette,
+			colorsLayers: {
+				roadsColor: mapArt.colorsLayers?.roadsColor ?? null,
+				buildingStrokeColor: mapArt.colorsLayers?.buildingStrokeColor ?? null,
+				buildingColor: mapArt.colorsLayers?.buildingColor ?? null,
+				roadsPathColor: mapArt.colorsLayers?.roadsPathColor ?? null,
+				waterColor: mapArt.colorsLayers?.waterColor ?? null,
+				landOthersColor: mapArt.colorsLayers?.landOthersColor ?? null
+			},
+			email: userInfo.email,
+			username: userInfo.username
+		};
+		saveMapArt(art, mapArt.image).catch((e) =>
+			console.error('CreateNewMapArtViewModel.uploadMapArt', e)
+		);
 	}
 
 	/** Counterpart of onCleared(). */

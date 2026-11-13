@@ -20,9 +20,10 @@
 		badge?: boolean;
 	}
 
-	// res/menu/bottom_navigation_menu.xml without the gallery item. The app's empty
-	// "none" item, which reserves the slot under the FAB, is the FAB itself here.
+	// res/menu/bottom_navigation_menu.xml. The app's empty "none" item, which reserves the
+	// slot under the FAB, is the FAB itself here.
 	const leadingItems: MenuItem[] = [
+		{ href: resolve('/(main)/gallery'), title: strings.gallery, icon: galleryIcon },
 		{ href: resolve('/(main)/edit'), title: strings.menu_edit, icon: artConfigIcon }
 	];
 	const trailingItems: MenuItem[] = $derived([
@@ -35,6 +36,14 @@
 		{ href: resolve('/(main)/about'), title: strings.menu_info, icon: infoIcon }
 	]);
 </script>
+
+{#snippet galleryIcon()}
+	<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+		<path d="M16,8m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+		<path stroke-linecap="round" d="M2,12.5L3.752,10.967C4.663,10.17 6.036,10.216 6.892,11.072L11.182,15.362C11.869,16.049 12.951,16.143 13.746,15.584L14.045,15.374C15.189,14.57 16.737,14.663 17.777,15.599L21,18.5" />
+		<path stroke-linecap="round" d="M22,12C22,16.714 22,19.071 20.535,20.535C19.071,22 16.714,22 12,22C7.286,22 4.929,22 3.464,20.535C2,19.071 2,16.714 2,12C2,7.286 2,4.929 3.464,3.464C4.929,2 7.286,2 12,2C16.714,2 19.071,2 20.535,3.464C21.509,4.438 21.836,5.807 21.945,8" />
+	</svg>
+{/snippet}
 
 {#snippet artConfigIcon()}
 	<svg viewBox="0 0 23.37 21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

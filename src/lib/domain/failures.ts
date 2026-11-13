@@ -62,3 +62,9 @@ export class UnknownErrorFailure extends Failure {
 		super(originalExceptionMessage, 'unknown_error_failure');
 	}
 }
+
+export class LocalStorageErrorFailure extends Failure {
+	constructor(originalExceptionMessage?: string | null) {
+		super(originalExceptionMessage, 'error_executing_operation_in_the_local_database');
+	}
+}

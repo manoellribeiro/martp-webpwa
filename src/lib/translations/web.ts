@@ -12,8 +12,6 @@ const en = {
 		"You are creating arts very fast. To keep Martp free for everyone, please wait a minute before creating the next one.",
 	hourly_art_limit_reached_error:
 		"You have created a lot of arts in the last hour. To keep Martp free for everyone, you can create a new one in %s min.",
-	/** Header chip of the success screen; the app's success_saved_to_gallery, but the web has no gallery. */
-	success_art_sent: 'Art sent',
 	/** Shown while the color palettes come from a sleeping Martp API (the app shows its own loading state). */
 	loading_color_palettes: "Loading color palettes…",
 	/** Digital exhibition rooms: the API's continents (src/lib/domain/continent.ts). */
@@ -97,7 +95,6 @@ const de: WebStrings = {
 		"Du erstellst sehr schnell Kunstwerke. Damit Martp für alle kostenlos bleibt, warte bitte eine Minute, bevor du das nächste erstellst.",
 	hourly_art_limit_reached_error:
 		"Du hast in der letzten Stunde sehr viele Kunstwerke erstellt. Damit Martp für alle kostenlos bleibt, kannst du in %s Min. ein neues erstellen.",
-	success_art_sent: 'Kunstwerk gesendet',
 	loading_color_palettes: "Farbpaletten werden geladen…",
 	continent_africa: 'Afrika',
 	continent_antarctica: 'Antarktis',
@@ -171,7 +168,6 @@ const es: WebStrings = {
 		"Estás creando artes muy rápido. Para que Martp siga siendo gratis para todos, espera un minuto antes de crear la siguiente.",
 	hourly_art_limit_reached_error:
 		"Has creado muchas artes en la última hora. Para que Martp siga siendo gratis para todos, podrás crear una nueva en %s min.",
-	success_art_sent: 'Arte enviada',
 	loading_color_palettes: "Cargando paletas de colores…",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
@@ -245,7 +241,6 @@ const fr: WebStrings = {
 		"Vous créez des œuvres très rapidement. Pour que Martp reste gratuit pour tout le monde, veuillez attendre une minute avant de créer la suivante.",
 	hourly_art_limit_reached_error:
 		"Vous avez créé beaucoup d'œuvres au cours de la dernière heure. Pour que Martp reste gratuit pour tout le monde, vous pourrez en créer une nouvelle dans %s min.",
-	success_art_sent: 'Œuvre envoyée',
 	loading_color_palettes: "Chargement des palettes de couleurs…",
 	continent_africa: 'Afrique',
 	continent_antarctica: 'Antarctique',
@@ -319,7 +314,6 @@ const ptBR: WebStrings = {
 		"Você está criando artes muito rápido. Para manter o Martp gratuito para todos, espere um minuto antes de criar a próxima.",
 	hourly_art_limit_reached_error:
 		"Você criou muitas artes na última hora. Para manter o Martp gratuito para todos, você poderá criar uma nova em %s min.",
-	success_art_sent: 'Arte enviada',
 	loading_color_palettes: "Carregando paletas de cores…",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
