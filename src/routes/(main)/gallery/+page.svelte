@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import ShareArtIcon from '#lib/components/ShareArtIcon.svelte';
 	import adventureMap from '#lib/assets/ic_adventure_map.svg';
 	import logo from '#lib/assets/martp_logo.svg';
 	import { getUserMapArts, type MapArtEntity } from '#lib/data/mapArts.ts';
-	import { shareArtImage } from '#lib/data/shareArtImage.ts';
+	import { canShareArtImage, shareArtImage } from '#lib/data/shareArtImage.ts';
 	import { Failure, UnknownErrorFailure } from '#lib/domain/failures.ts';
 	import { strings } from '#lib/strings.ts';
 
@@ -59,6 +60,8 @@
 			`${pad(date.getHours())}:${pad(date.getMinutes())}`
 		);
 	}
+	// Browsers that can't share files download the art, and the button says so
+	const canShare = canShareArtImage();
 </script>
 
 <div class="gallery">
@@ -89,13 +92,10 @@
 					<button
 						type="button"
 						class="share"
-						aria-label={strings.success_share}
+						aria-label={canShare ? strings.success_share : strings.download_art}
 						onclick={() => shareArtImage(mapArt.image)}
 					>
-						<!-- ic_share.xml -->
-						<svg viewBox="0 0 25 25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-							<path d="M13.97,4.14C13.24,4.36 12.78,5.96 12.59,7.91C7.28,7.91 2.5,13.48 2.5,20.08C4.69,14.08 9.5,12.45 12.64,12.45C12.84,14.21 13.29,15.62 13.97,15.82C16.07,16.43 22.5,12.44 22.5,9.98C22.5,7.52 16.07,3.53 13.97,4.14Z" />
-						</svg>
+						<ShareArtIcon canShare={canShare} />
 					</button>
 				</li>
 			{/each}
@@ -262,7 +262,7 @@
 		outline-offset: 2px;
 	}
 
-	.share svg {
+	.share :global(svg) {
 		width: 17px;
 		height: 17px;
 	}

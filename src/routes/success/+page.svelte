@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import ShareArtIcon from '#lib/components/ShareArtIcon.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { artStyleModels } from '#lib/features/artStyleSettings/mapArtStyleModels.ts';
-	import { shareArtImage } from '#lib/data/shareArtImage.ts';
+	import ArtSettingRow from '#lib/components/ArtSettingRow.svelte';
+	import ArtStyleIndicator from '#lib/components/ArtStyleIndicator.svelte';
+	import ColorPaletteIndicator from '#lib/components/ColorPaletteIndicator.svelte';
+	import MapZoomIndicator from '#lib/components/MapZoomIndicator.svelte';
+	import MartpPrimaryButton from '#lib/components/MartpPrimaryButton.svelte';
+	import { canShareArtImage, shareArtImage } from '#lib/data/shareArtImage.ts';
 	import { getSavedArt } from '#lib/features/success/savedArt.ts';
 	import { framePadding, frameThickness } from '#lib/sketches/martpSketch.ts';
 	import { formatString, strings } from '#lib/strings.ts';
@@ -41,10 +46,8 @@
 		goto(resolve('/(main)/edit'), { replaceState: true });
 	}
 
-	const colorsRows = [
-		['var(--blue)', 'var(--yellow)', 'var(--green)'],
-		['var(--error-medium)', 'var(--green-darker)', 'var(--light-yellow)']
-	];
+	// Browsers that can't share files download the art, and the button says so
+	const canShare = canShareArtImage();
 </script>
 
 <div class="success">
@@ -84,23 +87,10 @@
 					<button
 						type="button"
 						class="share"
-						aria-label={strings.success_share}
+						aria-label={canShare ? strings.success_share : strings.download_art}
 						onclick={() => savedArt && shareArtImage(savedArt)}
 					>
-						<!-- ic_share.xml -->
-						<svg
-							viewBox="0 0 25 25"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							aria-hidden="true"
-						>
-							<path
-								d="M13.97,4.14C13.24,4.36 12.78,5.96 12.59,7.91C7.28,7.91 2.5,13.48 2.5,20.08C4.69,14.08 9.5,12.45 12.64,12.45C12.84,14.21 13.29,15.62 13.97,15.82C16.07,16.43 22.5,12.44 22.5,9.98C22.5,7.52 16.07,3.53 13.97,4.14Z"
-							/>
-						</svg>
+						<ShareArtIcon canShare={canShare} />
 					</button>
 				</div>
 			{/if}
@@ -123,69 +113,43 @@
 				{formatString(strings.success_remix_body, strings.menu_edit)}
 			</p>
 
-			<div class="remix-tip">
-				<div class="indicator art-style-indicator" aria-hidden="true">
-					{#each artStyleModels as artStyleModel, index (artStyleModel.sketchArtType)}
-						<span class="art-style-chip" class:highlighted={index === 0}>
-							<span class="art-style-icon" style:--icon={`url("${artStyleModel.icon}")`}></span>
-						</span>
-					{/each}
-				</div>
-				<div class="tip-texts">
-					<p class="text-title tip-title">{strings.art_style}</p>
-					<p class="text-gray-subtitle">
-						{formatString(
-							strings.success_remix_art_style_description,
-							strings.colorful_map,
-							strings.classic,
-							strings.pointillism
-						)}
-					</p>
-				</div>
-			</div>
-
-			<div class="remix-tip">
-				<div class="indicator color-palette-indicator" aria-hidden="true">
-					{#each colorsRows as colorsRow, rowIndex (rowIndex)}
-						<span class="swatches">
-							{#each colorsRow as color (color)}
-								<span class="swatch" style:background={color}></span>
-							{/each}
-						</span>
-					{/each}
-				</div>
-				<div class="tip-texts">
-					<p class="text-title tip-title">{strings.color_palette}</p>
-					<p class="text-gray-subtitle">{strings.success_remix_color_palette_description}</p>
-				</div>
-			</div>
-
-			<div class="remix-tip">
-				<div class="indicator map-zoom-indicator" aria-hidden="true">
-					<!-- ic_zoom_out.xml -->
-					<svg viewBox="0 0 24 24" fill="currentColor">
-						<path
-							d="M15.5,14h-0.79l-0.28,-0.27C15.41,12.59 16,11.11 16,9.5 16,5.91 13.09,3 9.5,3S3,5.91 3,9.5 5.91,16 9.5,16c1.61,0 3.09,-0.59 4.23,-1.57l0.27,0.28v0.79l5,4.99L20.49,19l-4.99,-5zM9.5,14C7.01,14 5,11.99 5,9.5S7.01,5 9.5,5 14,7.01 14,9.5 11.99,14 9.5,14zM7,9h5v1H7z"
-						/>
-					</svg>
-					<span class="zoom-track"></span>
-					<!-- ic_zoom_in.xml -->
-					<svg viewBox="0 0 24 24" fill="currentColor">
-						<path
-							d="M15.5,14h-0.79l-0.28,-0.27C15.41,12.59 16,11.11 16,9.5 16,5.91 13.09,3 9.5,3S3,5.91 3,9.5 5.91,16 9.5,16c1.61,0 3.09,-0.59 4.23,-1.57l0.27,0.28v0.79l5,4.99L20.49,19l-4.99,-5zM9.5,14C7.01,14 5,11.99 5,9.5S7.01,5 9.5,5 14,7.01 14,9.5 11.99,14 9.5,14zM12,10h-2v2H9v-2H7V9h2V7h1v2h2v1z"
-						/>
-					</svg>
-				</div>
-				<div class="tip-texts">
-					<p class="text-title tip-title">{strings.map_zoom}</p>
-					<p class="text-gray-subtitle">{strings.success_remix_map_zoom_description}</p>
-				</div>
-			</div>
+			<ArtSettingRow
+				title={strings.art_style}
+				description={formatString(
+					strings.success_remix_art_style_description,
+					strings.colorful_map,
+					strings.classic,
+					strings.pointillism
+				)}
+				showTopDivider={false}
+			>
+				{#snippet indicator()}
+					<ArtStyleIndicator />
+				{/snippet}
+			</ArtSettingRow>
+			<ArtSettingRow
+				title={strings.color_palette}
+				description={strings.success_remix_color_palette_description}
+				showTopDivider
+			>
+				{#snippet indicator()}
+					<ColorPaletteIndicator />
+				{/snippet}
+			</ArtSettingRow>
+			<ArtSettingRow
+				title={strings.map_zoom}
+				description={strings.success_remix_map_zoom_description}
+				showTopDivider
+			>
+				{#snippet indicator()}
+					<MapZoomIndicator />
+				{/snippet}
+			</ArtSettingRow>
 		</section>
 
-		<button type="button" class="text-title create-another-art" onclick={openEditTab}>
-			{strings.success_create_another_art}
-		</button>
+		<div class="create-another-art">
+			<MartpPrimaryButton text={strings.success_create_another_art} onclick={openEditTab} />
+		</div>
 	</div>
 </div>
 
@@ -286,7 +250,7 @@
 		cursor: pointer;
 	}
 
-	.share svg {
+	.share :global(svg) {
 		width: 45%;
 		height: 45%;
 	}
@@ -341,127 +305,7 @@
 		line-height: 18px;
 	}
 
-	.remix-tip {
-		display: flex;
-		align-items: center;
-		padding: 10px 0;
-	}
-
-	.remix-tip + .remix-tip {
-		border-top: 1px solid var(--blue-alpha-8);
-	}
-
-	.indicator {
-		flex-shrink: 0;
-		width: 80px;
-	}
-
-	.tip-texts {
-		flex: 1;
-		min-width: 0;
-		padding-left: 14px;
-	}
-
-	.tip-title {
-		color: var(--blue);
-	}
-
-	.art-style-indicator {
-		display: flex;
-		gap: 4px;
-	}
-
-	.art-style-chip {
-		display: grid;
-		place-items: center;
-		width: 24px;
-		height: 24px;
-		padding: 5px;
-		border-radius: 6px;
-		background: var(--light-l3);
-		color: var(--dark-d4);
-	}
-
-	.art-style-chip.highlighted {
-		background: var(--yellow);
-		color: var(--blue);
-	}
-
-	/* Icon tint, as in the art style cards: the drawable is a mask over the current color. */
-	.art-style-icon {
-		width: 100%;
-		height: 100%;
-		background: currentColor;
-		-webkit-mask: var(--icon) center / contain no-repeat;
-		mask: var(--icon) center / contain no-repeat;
-	}
-
-	.color-palette-indicator {
-		display: flex;
-		flex-direction: column;
-		gap: 3px;
-	}
-
-	.swatches {
-		display: flex;
-		gap: 3px;
-	}
-
-	.swatch {
-		width: 12px;
-		height: 12px;
-		border: 1px solid var(--blue-alpha-12);
-		border-radius: 50%;
-	}
-
-	.map-zoom-indicator {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		color: var(--dark-d5);
-	}
-
-	.map-zoom-indicator svg {
-		flex-shrink: 0;
-		width: 12px;
-		height: 12px;
-	}
-
-	/* Half-way slider: 3px track, yellow up to the 12px thumb. */
-	.zoom-track {
-		flex: 1;
-		height: 12px;
-		background:
-			radial-gradient(circle closest-side, var(--yellow) 100%, transparent 100%) center / 12px
-				12px no-repeat,
-			linear-gradient(to right, var(--yellow) 50%, var(--light-l2) 50%) center / 100% 3px
-				no-repeat;
-		border-radius: 1.5px;
-	}
-
-	/* RoundedCornerShape(percent = 10) on a 52px tall button. */
 	.create-another-art {
-		display: block;
-		width: calc(100% - 40px);
-		height: 52px;
 		margin: 12px 20px 16px;
-		padding: 0 24px 0 32px;
-		border: none;
-		border-radius: 5.2px;
-		background: var(--blue);
-		color: var(--white);
-		font: inherit;
-		font-size: 16px;
-		font-weight: 700;
-		cursor: pointer;
-	}
-
-	.create-another-art:active {
-		background-image: linear-gradient(rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.12));
-	}
-
-	.create-another-art:focus-visible {
-		outline: 2px solid var(--blue);
-		outline-offset: 2px;
 	}
 </style>

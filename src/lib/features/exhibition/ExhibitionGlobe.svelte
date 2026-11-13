@@ -1,9 +1,11 @@
 <script lang="ts">
 	import createGlobe, { type Globe } from 'cobe';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { resolve } from '$app/paths';
 	import { getGlobeMapArts, type RemoteExhibitionMapArt } from '#lib/data/martpApi.ts';
 	import { isExhibitionRoom, roomSlug } from '#lib/domain/continent.ts';
+	import { strings } from '#lib/strings.ts';
 	import { artAuthor, artDate, artStyle } from './exhibitionArt.ts';
 	import { anglesFacing, CANVAS_TO_GLOBE, closestAngle, projectLocation } from './globe.ts';
 
@@ -24,6 +26,8 @@
 
 	let arts = $state<RemoteExhibitionMapArt[]>([]);
 	let selected = $state<RemoteExhibitionMapArt | null>(null);
+	/** While the pins come from the API, which can take seconds when it has been asleep. */
+	let loading = $state(true);
 
 	let container: HTMLDivElement;
 	let canvas: HTMLCanvasElement;
@@ -171,7 +175,8 @@
 			.catch((error) => {
 				// The globe still spins without pins.
 				if (!request.signal.aborted) console.error('Could not load the globe arts', error);
-			});
+			})
+			.finally(() => (loading = false));
 
 		return () => {
 			request.abort();
@@ -224,6 +229,14 @@
 				{/if}
 			</span>
 		</a>
+	{/if}
+
+	<!-- Over the globe, which stays visible and can be spun meanwhile -->
+	{#if loading}
+		<p class="loading" role="status" out:fade={{ duration: 300 }}>
+			<span class="spinner" aria-hidden="true"></span>
+			{strings.loading_globe_arts}
+		</p>
 	{/if}
 </div>
 
@@ -389,6 +402,52 @@
 		font-weight: 700;
 		letter-spacing: 0.8px;
 		text-transform: uppercase;
+	}
+
+	.loading {
+		position: absolute;
+		bottom: 10%;
+		left: 50%;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0;
+		padding: 8px 14px;
+		border: 1px solid var(--exhibition-surface-border);
+		border-radius: 999px;
+		background: rgb(255 255 255 / 90%);
+		box-shadow: 0 6px 18px rgb(18 13 49 / 8%);
+		font-family: var(--exhibition-label-font);
+		font-size: 11px;
+		letter-spacing: 0.8px;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: var(--blue);
+		transform: translateX(-50%);
+		pointer-events: none;
+	}
+
+	.spinner {
+		width: 12px;
+		height: 12px;
+		box-sizing: border-box;
+		border: 2px solid rgb(18 13 49 / 15%);
+		border-top-color: var(--blue);
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.spinner {
+			animation-duration: 2s;
+		}
 	}
 
 	@media (min-width: 960px) {

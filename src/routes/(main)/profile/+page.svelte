@@ -82,19 +82,17 @@
 		</span>
 		<h2 class="text-screen-title exhibition-title">{strings.visit_digital_exhibition}</h2>
 		<p class="text-gray-subtitle exhibition-description">{strings.explore_community_artworks}</p>
-		<div class="open-in-browser">
+		<div class="open-exhibition">
 			<MartpButton
-				title={strings.open_in_browser}
+				title={strings.open_exhibition}
 				buttonBackgroundColor="var(--yellow)"
 				fontAndIconColor="var(--black)"
 				onclick={() => window.open(DIGITAL_EXHIBITION_URL, '_blank', 'noopener')}
 			>
 				{#snippet startIcon()}
-					<!-- ic_open_in_browser.xml -->
+					<!-- Material Symbols open_in_new: the exhibition opens in a new tab -->
 					<svg viewBox="0 0 960 960" fill="currentColor" aria-hidden="true">
-						<path
-							d="M200,840Q167,840 143.5,816.5Q120,793 120,760L120,200Q120,167 143.5,143.5Q167,120 200,120L760,120Q793,120 816.5,143.5Q840,167 840,200L840,760Q840,793 816.5,816.5Q793,840 760,840L640,840Q623,840 611.5,828.5Q600,817 600,800Q600,783 611.5,771.5Q623,760 640,760L760,760Q760,760 760,760Q760,760 760,760L760,280L200,280L200,760Q200,760 200,760Q200,760 200,760L320,760Q337,760 348.5,771.5Q360,783 360,800Q360,817 348.5,828.5Q337,840 320,840L200,840ZM440,800L440,594L405,629Q393,641 376.5,640.5Q360,640 348,628Q337,616 336.5,600Q336,584 348,572L452,468Q458,462 465,459.5Q472,457 480,457Q488,457 495,459.5Q502,462 508,468L612,572Q624,584 623.5,600Q623,616 612,628Q600,640 583.5,640.5Q567,641 555,629L520,594L520,800Q520,817 508.5,828.5Q497,840 480,840Q463,840 451.5,828.5Q440,817 440,800Z"
-						/>
+						<path d="M200,840Q167,840 143.5,816.5Q120,793 120,760L120,200Q120,167 143.5,143.5Q167,120 200,120L480,120L480,200L200,200L200,760L760,760L760,480L840,480L840,760Q840,793 816.5,816.5Q793,840 760,840L200,840ZM388,628L332,572L704,200L560,200L560,120L840,120L840,400L760,400L760,256L388,628Z" />
 					</svg>
 				{/snippet}
 			</MartpButton>
@@ -191,7 +189,7 @@
 		color: var(--light-l1);
 	}
 
-	.open-in-browser {
+	.open-exhibition {
 		align-self: stretch;
 		margin-top: 8px;
 	}

@@ -114,5 +114,20 @@ export default {
 	success_remix_art_style_description: "%1$s, %2$s ou %3$s",
 	success_remix_color_palette_description: "Mêmes rues, une toute nouvelle ambiance",
 	success_remix_map_zoom_description: "Des détails de près ou toute la zone",
-	success_create_another_art: "Créer une autre œuvre"
+	success_create_another_art: "Créer une autre œuvre",
+	onboarding_step_count: "%1$d sur %2$d",
+	onboarding_skip: "Passer",
+	onboarding_next: "Suivant",
+	onboarding_start_creating: "Commencer à créer",
+	onboarding_art_title: "Votre position devient de l'art",
+	onboarding_art_description: "Martp transforme les rues autour de vous en une œuvre cartographique abstraite.",
+	onboarding_choices_title: "Et vous choisissez son apparence",
+	onboarding_choices_description: "Modifiez-les quand vous voulez dans l'onglet %1$s.",
+	onboarding_signature_title: "Signez vos œuvres, si vous le souhaitez",
+	onboarding_signature_description: "Ajoutez un nom d'utilisateur et un e-mail dans l'onglet %1$s. Ils sont envoyés avec vos œuvres et sont tous deux facultatifs.",
+	onboarding_example_username: "@utilisateur",
+	onboarding_exhibition_title: "Chaque œuvre rejoint l'Exposition Numérique",
+	onboarding_exhibition_description: "Après une rapide vérification, votre œuvre est exposée dans la salle de son continent, à côté d'œuvres du monde entier. Visitez-la quand vous voulez sur martp.app/exhibition.",
+	onboarding_example_art_description: "Un exemple d'œuvre cartographique",
+	onboarding_globe_description: "Un globe avec les œuvres de l'Exposition Numérique"
 } as const;

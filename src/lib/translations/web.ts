@@ -14,6 +14,10 @@ const en = {
 		"You have created a lot of arts in the last hour. To keep Martp free for everyone, you can create a new one in %s min.",
 	/** Shown while the color palettes come from a sleeping Martp API (the app shows its own loading state). */
 	loading_color_palettes: "Loading color palettes…",
+	/** The share button where the browser can't share files, so it downloads the art. */
+	download_art: "Download",
+	/** Profile: opens the digital exhibition in a new tab (the app says "Open in Browser"). */
+	open_exhibition: "Open exhibition",
 	/** Digital exhibition rooms: the API's continents (src/lib/domain/continent.ts). */
 	continent_africa: 'Africa',
 	continent_antarctica: 'Antarctica',
@@ -28,6 +32,8 @@ const en = {
 	exhibition_headline: "The digital exhibition for the Martp art generator.",
 	enter_the_exhibition: "Enter the exhibition",
 	arts_around_the_world: "Arts around the world",
+	/** Over the globe while its arts come from the API. */
+	loading_globe_arts: "Loading arts…",
 	drag_to_spin: "Drag to spin",
 	make_your_own: "Make your own",
 	make_your_own_description: "Every art here was generated from a real place. Yours can be next.",
@@ -96,6 +102,8 @@ const de: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Du hast in der letzten Stunde sehr viele Kunstwerke erstellt. Damit Martp für alle kostenlos bleibt, kannst du in %s Min. ein neues erstellen.",
 	loading_color_palettes: "Farbpaletten werden geladen…",
+	download_art: "Herunterladen",
+	open_exhibition: "Ausstellung öffnen",
 	continent_africa: 'Afrika',
 	continent_antarctica: 'Antarktis',
 	continent_asia: 'Asien',
@@ -108,6 +116,7 @@ const de: WebStrings = {
 	exhibition_headline: "Die digitale Ausstellung des Martp-Kunstgenerators.",
 	enter_the_exhibition: "Ausstellung betreten",
 	arts_around_the_world: "Kunst aus aller Welt",
+	loading_globe_arts: "Kunstwerke werden geladen…",
 	drag_to_spin: "Zum Drehen ziehen",
 	make_your_own: "Erstelle dein eigenes",
 	make_your_own_description: "Jedes Kunstwerk hier wurde an einem echten Ort erstellt. Deins kann das nächste sein.",
@@ -169,6 +178,8 @@ const es: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Has creado muchas artes en la última hora. Para que Martp siga siendo gratis para todos, podrás crear una nueva en %s min.",
 	loading_color_palettes: "Cargando paletas de colores…",
+	download_art: "Descargar",
+	open_exhibition: "Abrir exposición",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
 	continent_asia: 'Asia',
@@ -181,6 +192,7 @@ const es: WebStrings = {
 	exhibition_headline: "La exposición digital del generador de arte Martp.",
 	enter_the_exhibition: "Entrar a la exposición",
 	arts_around_the_world: "Arte de todo el mundo",
+	loading_globe_arts: "Cargando artes…",
 	drag_to_spin: "Arrastra para girar",
 	make_your_own: "Crea la tuya",
 	make_your_own_description: "Cada arte de aquí se generó en un lugar real. La tuya puede ser la próxima.",
@@ -242,6 +254,8 @@ const fr: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Vous avez créé beaucoup d'œuvres au cours de la dernière heure. Pour que Martp reste gratuit pour tout le monde, vous pourrez en créer une nouvelle dans %s min.",
 	loading_color_palettes: "Chargement des palettes de couleurs…",
+	download_art: "Télécharger",
+	open_exhibition: "Ouvrir l'exposition",
 	continent_africa: 'Afrique',
 	continent_antarctica: 'Antarctique',
 	continent_asia: 'Asie',
@@ -254,6 +268,7 @@ const fr: WebStrings = {
 	exhibition_headline: "L'exposition numérique du générateur d'art Martp.",
 	enter_the_exhibition: "Entrer dans l'exposition",
 	arts_around_the_world: "Des œuvres du monde entier",
+	loading_globe_arts: "Chargement des œuvres…",
 	drag_to_spin: "Faites glisser pour tourner",
 	make_your_own: "Créez la vôtre",
 	make_your_own_description: "Chaque œuvre ici a été créée dans un lieu réel. La vôtre peut être la prochaine.",
@@ -315,6 +330,8 @@ const ptBR: WebStrings = {
 	hourly_art_limit_reached_error:
 		"Você criou muitas artes na última hora. Para manter o Martp gratuito para todos, você poderá criar uma nova em %s min.",
 	loading_color_palettes: "Carregando paletas de cores…",
+	download_art: "Baixar",
+	open_exhibition: "Abrir exposição",
 	continent_africa: 'África',
 	continent_antarctica: 'Antártida',
 	continent_asia: 'Ásia',
@@ -327,6 +344,7 @@ const ptBR: WebStrings = {
 	exhibition_headline: "A exposição digital do gerador de arte Martp.",
 	enter_the_exhibition: "Entrar na exposição",
 	arts_around_the_world: "Artes pelo mundo",
+	loading_globe_arts: "Carregando artes…",
 	drag_to_spin: "Arraste para girar",
 	make_your_own: "Crie a sua",
 	make_your_own_description: "Cada arte aqui foi gerada em um lugar real. A sua pode ser a próxima.",

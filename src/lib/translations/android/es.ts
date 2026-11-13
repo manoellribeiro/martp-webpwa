@@ -114,5 +114,20 @@ export default {
 	success_remix_art_style_description: "%1$s, %2$s o %3$s",
 	success_remix_color_palette_description: "Mismas calles, un ambiente totalmente nuevo",
 	success_remix_map_zoom_description: "Detalles de cerca o toda la zona",
-	success_create_another_art: "Crear otra obra"
+	success_create_another_art: "Crear otra obra",
+	onboarding_step_count: "%1$d de %2$d",
+	onboarding_skip: "Omitir",
+	onboarding_next: "Siguiente",
+	onboarding_start_creating: "Empezar a crear",
+	onboarding_art_title: "Tu ubicación convertida en arte",
+	onboarding_art_description: "Martp convierte las calles a tu alrededor en un arte de mapa abstracto.",
+	onboarding_choices_title: "Y tú eliges cómo se ve",
+	onboarding_choices_description: "Cámbialo cuando quieras en la pestaña %1$s.",
+	onboarding_signature_title: "Firma tus artes, si quieres",
+	onboarding_signature_description: "Añade un nombre de usuario y un correo en la pestaña %1$s. Se envían con tus artes y ambos son opcionales.",
+	onboarding_example_username: "@usuario",
+	onboarding_exhibition_title: "Cada arte entra en la Exposición Digital",
+	onboarding_exhibition_description: "Tras una revisión rápida, tu arte cuelga en la sala de su continente, junto a artes de todo el mundo. Visítala cuando quieras en martp.app/exhibition.",
+	onboarding_example_art_description: "Un ejemplo de arte de mapa",
+	onboarding_globe_description: "Un globo con las artes de la Exposición Digital"
 } as const;

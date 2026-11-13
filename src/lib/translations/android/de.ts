@@ -114,5 +114,20 @@ export default {
 	success_remix_art_style_description: "%1$s, %2$s oder %3$s",
 	success_remix_color_palette_description: "Gleiche Straßen, eine ganz neue Stimmung",
 	success_remix_map_zoom_description: "Details aus der Nähe oder die ganze Gegend",
-	success_create_another_art: "Weiteres Kunstwerk erstellen"
+	success_create_another_art: "Weiteres Kunstwerk erstellen",
+	onboarding_step_count: "%1$d von %2$d",
+	onboarding_skip: "Überspringen",
+	onboarding_next: "Weiter",
+	onboarding_start_creating: "Jetzt loslegen",
+	onboarding_art_title: "Dein Standort wird zu Kunst",
+	onboarding_art_description: "Martp verwandelt die Straßen um dich herum in ein abstraktes Kartenkunstwerk.",
+	onboarding_choices_title: "Und du entscheidest, wie es aussieht",
+	onboarding_choices_description: "Ändere das jederzeit im Tab %1$s.",
+	onboarding_signature_title: "Signiere deine Kunstwerke, wenn du möchtest",
+	onboarding_signature_description: "Füge im Tab %1$s einen Benutzernamen und eine E-Mail hinzu. Sie werden mit deinen Kunstwerken gesendet und sind beide optional.",
+	onboarding_example_username: "@benutzername",
+	onboarding_exhibition_title: "Jedes Kunstwerk kommt in die Digitale Ausstellung",
+	onboarding_exhibition_description: "Nach einer kurzen Prüfung hängt dein Kunstwerk im Raum seines Kontinents, neben Kunstwerken aus aller Welt. Besuche es jederzeit auf martp.app/exhibition.",
+	onboarding_example_art_description: "Ein Beispiel für ein Kartenkunstwerk",
+	onboarding_globe_description: "Ein Globus mit den Kunstwerken der Digitalen Ausstellung"
 } as const;

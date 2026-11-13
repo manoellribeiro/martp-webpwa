@@ -42,10 +42,10 @@ export const strings: Strings = { ...translations[DEFAULT_LOCALE], ...translatio
 
 document.documentElement.lang = locale;
 
-/** Fills Android's %s and %1$s, %2$s... placeholders, in order. */
-export function formatString(text: string, ...args: string[]): string {
+/** Fills Android's %s, %d and %1$s, %2$d... placeholders, in order. */
+export function formatString(text: string, ...args: (string | number)[]): string {
 	let next = 0;
-	return text.replace(/%(?:(\d+)\$)?s/g, (_, position?: string) =>
-		args[position ? Number(position) - 1 : next++] ?? ''
+	return text.replace(/%(?:(\d+)\$)?[sd]/g, (_, position?: string) =>
+		String(args[position ? Number(position) - 1 : next++] ?? '')
 	);
 }

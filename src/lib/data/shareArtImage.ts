@@ -4,6 +4,19 @@ import { strings } from '#lib/strings.ts';
  * Context.shareArtImage: the Web Share API with the PNG and share_art_message. Browsers
  * that can't share files download the PNG instead.
  */
+/**
+ * Whether shareArtImage opens the share sheet. False where the browser can't share files
+ * (most desktop browsers), so the button shows that it downloads instead.
+ */
+export function canShareArtImage(): boolean {
+	try {
+		const file = new File([], 'martp.png', { type: 'image/png' });
+		return navigator.canShare?.({ files: [file] }) ?? false;
+	} catch {
+		return false;
+	}
+}
+
 export async function shareArtImage(image: Blob) {
 	const file = new File([image], 'martp.png', { type: 'image/png' });
 	const shareData: ShareData = { files: [file], text: strings.share_art_message };

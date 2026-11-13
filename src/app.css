@@ -64,11 +64,12 @@
 	--error-light: #fa8c8c;
 	--error-lightest: #ffe1d7;
 
-	--light-cream-transparent: #00fff8e8;
-	--blue-alpha-8: #14120d31;
-	--blue-alpha-12: #1f120d31;
-	--blue-alpha-80: #cc120d31;
-	--white-alpha-80: #ccffffff;
+	/* Android colors are #AARRGGBB; CSS reads 8 digits as #RRGGBBAA. */
+	--light-cream-transparent: #fff8e800;
+	--blue-alpha-8: #120d3114;
+	--blue-alpha-12: #120d311f;
+	--blue-alpha-80: #120d31cc;
+	--white-alpha-80: #ffffffcc;
 
 	/* ?attr/actionBarSize */
 	--bottom-navigation-bar-height: 56px;
