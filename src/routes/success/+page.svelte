@@ -25,6 +25,28 @@
 	let artImageUrl = $state<string | null>(null);
 	let artImageSize = $state<{ width: number; height: number } | null>(null);
 
+	// The art fills the width, or the height its status caption leaves, keeping its ratio.
+	// Measured here instead of with CSS container units, which made the art 0px wide in Chrome.
+	const CAPTION_HEIGHT = 50;
+	let artArea = $state<HTMLElement>();
+	let artAreaSize = $state<{ width: number; height: number } | null>(null);
+	const artWidth = $derived.by(() => {
+		if (!artImageSize || !artAreaSize) return null;
+		const ratio = artImageSize.width / artImageSize.height;
+		const width = Math.min(artAreaSize.width, (artAreaSize.height - CAPTION_HEIGHT) * ratio);
+		return width > 0 ? Math.floor(width) : null;
+	});
+
+	$effect(() => {
+		if (!artArea) return;
+		const observer = new ResizeObserver(([entry]) => {
+			const { width, height } = entry.contentRect;
+			artAreaSize = { width, height };
+		});
+		observer.observe(artArea);
+		return () => observer.disconnect();
+	});
+
 	onMount(() => {
 		// Like the activity without IMAGE_PATH_LOCATION_EXTRA (e.g. after a reload): closes.
 		if (!savedArt) {
@@ -90,12 +112,12 @@
 		</header>
 
 		<!-- The art and its status are centered together, so extra height goes around them -->
-		<div class="saved-art-with-status">
+		<div class="saved-art-with-status" bind:this={artArea}>
 			{#if artImageUrl}
 				<div
 					class="saved-art"
 					class:loaded={artImageSize}
-					style:--art-ratio={artImageSize && artImageSize.width / artImageSize.height}
+					style:width={artWidth ? `${artWidth}px` : undefined}
 					style:--frame-fraction={artImageSize &&
 						(frameThickness + framePadding) / artImageSize.width}
 					style:--share-size-fraction={SHARE_BUTTON_ART_WIDTH_FRACTION}
@@ -221,9 +243,9 @@
 		color: var(--blue);
 	}
 
-	/* Line heights are fixed so the art can take exactly the height the caption leaves. */
+	/* Line heights are fixed so the art can take exactly the height the caption leaves
+	   (CAPTION_HEIGHT). */
 	.saved-art-with-status {
-		--caption-height: 50px;
 		display: flex;
 		flex: 1;
 		flex-direction: column;
@@ -233,19 +255,14 @@
 		min-height: 200px;
 		margin-top: 12px;
 		background: radial-gradient(circle closest-side, var(--white-alpha-80), transparent);
-		container-type: size;
+		contain: size;
 	}
 
-	/* Fills the width, or the height left by the caption, keeping the art's ratio. Stretched
-	   and centered by its margins: if the width rule ever fails, the art fills the width
-	   instead of shrinking to nothing. */
+	/* Full width until the page sets the measured width (artWidth), so it is never 0px. */
 	.saved-art {
 		position: relative;
 		flex-shrink: 0;
-		align-self: stretch;
-		margin: 0 auto;
-		width: min(100cqw, (100cqh - var(--caption-height)) * var(--art-ratio, 1));
-		container-type: inline-size;
+		width: 100%;
 	}
 
 	.saved-art:not(.loaded) {
@@ -258,17 +275,17 @@
 		height: auto;
 	}
 
-	/* Sized from the art width and pushed past the sketch frame, onto the map. */
+	/* Sized from the art width and pushed past the sketch frame, onto the map. Percentages of
+	   the art's width, not container units: widths and margins in % both refer to it. */
 	.share {
-		--share-size: max(100cqw * var(--share-size-fraction), var(--share-min-size));
-		--share-inset: calc(100cqw * (var(--frame-fraction, 0) + var(--share-gap-fraction)));
 		position: absolute;
-		top: var(--share-inset);
-		right: var(--share-inset);
+		top: 0;
+		right: 0;
 		display: grid;
 		place-items: center;
-		width: var(--share-size);
-		height: var(--share-size);
+		width: max(100% * var(--share-size-fraction), var(--share-min-size));
+		aspect-ratio: 1;
+		margin: calc(100% * (var(--frame-fraction, 0) + var(--share-gap-fraction)));
 		padding: 0;
 		border: 1.5px solid var(--white);
 		border-radius: 50%;
